@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:helpnow_mobileapp/screens/ngo/ngo_dashboard.dart';
 import 'package:helpnow_mobileapp/screens/ngo/ngo_dashboard_screen.dart';
-
 class NGOSignInScreen extends StatelessWidget {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
@@ -60,7 +60,7 @@ class NGOSignInScreen extends StatelessWidget {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (_) => NGODashboardScreen()),
+                                  builder: (_) => NGODashboard()),
                             );
                           },
                           style: ElevatedButton.styleFrom(
