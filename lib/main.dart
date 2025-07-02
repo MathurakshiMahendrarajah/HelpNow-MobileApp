@@ -11,6 +11,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'HelpNow',
       theme: ThemeData(
         primarySwatch: Colors.blue,
@@ -30,7 +31,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      initialRoute: RouteConfig.home,
+      initialRoute: RouteConfig.splash,
       routes: RouteConfig.routes,
     );
   }
