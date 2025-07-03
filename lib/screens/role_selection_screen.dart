@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:helpnow_mobileapp/screens/ngo/ngo_login_screen.dart';
-import 'package:helpnow_mobileapp/screens/routes.dart';
+import 'package:helpnow_mobileapp/screens/ngo/ngo_login_screen.dart'; // Import the NGO Login Screen
+import 'package:helpnow_mobileapp/screens/volunteer/volunteer_login_screen.dart'; // Import the Volunteer Login Screen
 
 class RoleSelectionScreen extends StatelessWidget {
   const RoleSelectionScreen({super.key});
@@ -11,7 +11,6 @@ class RoleSelectionScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Select Your Role'),
         backgroundColor: Color(0xFFC8E6C9),
-        // Color(0xFF2E7D32) for menu bar
         centerTitle: true,
       ),
       body: Padding(
@@ -40,7 +39,7 @@ class RoleSelectionScreen extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (_) => NGOSignInScreen()),
-                ); // define this route
+                ); // Navigate to NGO login screen
               },
             ),
             const SizedBox(height: 20),
@@ -57,10 +56,12 @@ class RoleSelectionScreen extends StatelessWidget {
               icon: const Icon(Icons.volunteer_activism),
               label: const Text('Volunteer'),
               onPressed: () {
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(builder: (_) => NGOSignInScreen()),
-                // );
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => VolunteerLoginScreen(),
+                  ), // Navigate to Volunteer login screen
+                );
               },
             ),
           ],
