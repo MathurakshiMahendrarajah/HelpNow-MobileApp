@@ -2,10 +2,37 @@ import 'package:flutter/material.dart';
 
 class VolunteerDashboard extends StatelessWidget {
   // Sample data for tasks (this could be dynamic in a real app)
-  final List<Map<String, String>> tasks = [
-    {"task": "Help distribute food at City Park", "status": "Pending"},
-    {"task": "Assist in cleaning at Riverside", "status": "In Progress"},
-    {"task": "Teach children at Local School", "status": "Completed"},
+  final List<Map<String, String>> nearbyCases = [
+    {
+      "caseId": "C1",
+      "location": "City Park",
+      "status": "Assigned",
+      "volunteer": "John Doe",
+    },
+    {
+      "caseId": "C2",
+      "location": "River Side",
+      "status": "In Progress",
+      "volunteer": "Jane Smith",
+    },
+  ];
+
+  final List<Map<String, String>> myCases = [
+    {
+      "caseId": "C3",
+      "location": "Beach Cleanup",
+      "status": "Assigned",
+      "volunteer": "Alice",
+    },
+  ];
+
+  final List<Map<String, String>> completedCases = [
+    {
+      "caseId": "C4",
+      "location": "School Help",
+      "status": "Completed",
+      "volunteer": "Bob",
+    },
   ];
 
   @override
@@ -14,41 +41,93 @@ class VolunteerDashboard extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Volunteer Dashboard'),
         backgroundColor: Colors.greenAccent,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.exit_to_app),
+            onPressed: () {
+              // Logic to sign out the volunteer
+              Navigator.pop(context); // Navigate back to the login screen
+            },
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
+        child: ListView(
           children: [
             // Welcome message
             _buildWelcomeMessage(),
 
             const SizedBox(height: 20),
 
-            // Assigned Tasks Section
-            _buildAssignedTasks(),
+            // Menu Bar (Navigation)
+            _buildMenuBar(context),
 
             const SizedBox(height: 20),
 
-            // Status Section
-            _buildTaskStatus(),
+            // Nearby Cases Section
+            _buildSectionTitle('Nearby Cases'),
+            _buildCaseList(nearbyCases),
 
             const SizedBox(height: 20),
 
-            // Sign Out Button
-            _buildSignOutButton(context),
+            // My Cases Section
+            _buildSectionTitle('My Cases'),
+            _buildCaseList(myCases),
+
+            const SizedBox(height: 20),
+
+            // Completed Cases Section
+            _buildSectionTitle('Completed Cases'),
+            _buildCaseList(completedCases),
           ],
         ),
       ),
     );
   }
 
-  // Welcome message widget
+  // Widget to build the section title
+  Widget _buildSectionTitle(String title) {
+    return Text(
+      title,
+      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+    );
+  }
+
+  // Widget to build the case list (dummy data)
+  Widget _buildCaseList(List<Map<String, String>> caseList) {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            ...caseList.map((caseItem) {
+              return ListTile(
+                title: Text('Case ID: ${caseItem["caseId"]}'),
+                subtitle: Text(
+                  'Location: ${caseItem["location"]}\nStatus: ${caseItem["status"]}\nVolunteer: ${caseItem["volunteer"]}',
+                ),
+                leading: const Icon(Icons.assignment),
+                onTap: () {
+                  // Logic for selecting and viewing the case details
+                },
+              );
+            }).toList(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Widget to build the welcome message
   Widget _buildWelcomeMessage() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: const [
         Text(
-          'Welcome to the Volunteer Dashboard!',
+          'Welcome to your Dashboard!',
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
         SizedBox(height: 8),
@@ -60,94 +139,45 @@ class VolunteerDashboard extends StatelessWidget {
     );
   }
 
-  // Assigned tasks widget
-  Widget _buildAssignedTasks() {
+  // Menu Bar (Navigation Bar)
+  Widget _buildMenuBar(BuildContext context) {
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
+        padding: const EdgeInsets.all(8.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            const Text(
-              'Assigned Tasks',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 10),
-            ...tasks.map((task) {
-              return ListTile(
-                title: Text(task["task"] ?? ""),
-                subtitle: Text('Status: ${task["status"] ?? "Unknown"}'),
-                leading: Icon(Icons.task),
-              );
-            }).toList(),
+            _buildMenuButton(context, 'Nearby Cases', () {
+              // Logic to navigate to Nearby Cases section
+            }),
+            _buildMenuButton(context, 'My Cases', () {
+              // Logic to navigate to My Cases section
+            }),
+            _buildMenuButton(context, 'Completed Cases', () {
+              // Logic to navigate to Completed Cases section
+            }),
           ],
         ),
       ),
     );
   }
 
-  // Task status widget
-  Widget _buildTaskStatus() {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            const Text(
-              'Task Status Overview',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildStatusColumn('Pending', Colors.orange),
-                _buildStatusColumn('In Progress', Colors.blue),
-                _buildStatusColumn('Completed', Colors.green),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // Helper method to build status columns
-  Widget _buildStatusColumn(String status, Color color) {
-    int count = tasks.where((task) => task["status"] == status).length;
-    return Column(
-      children: [
-        Icon(Icons.circle, color: color, size: 30),
-        const SizedBox(height: 5),
-        Text(
-          '$status',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 5),
-        Text('$count tasks', style: TextStyle(color: Colors.grey)),
-      ],
-    );
-  }
-
-  // Sign out button widget
-  Widget _buildSignOutButton(BuildContext context) {
+  // Widget to build each menu button
+  Widget _buildMenuButton(
+    BuildContext context,
+    String label,
+    VoidCallback onTap,
+  ) {
     return ElevatedButton(
-      onPressed: () {
-        // Logic for logging out (You may want to clear tokens or user data here)
-        Navigator.pop(
-          context,
-        ); // Navigate back to the login screen (or RoleSelectionScreen)
-      },
+      onPressed: onTap,
       style: ElevatedButton.styleFrom(
-        backgroundColor:
-            Colors.redAccent, // Use 'backgroundColor' instead of 'primary'
-        minimumSize: Size(double.infinity, 48),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        backgroundColor: Colors.greenAccent,
+        minimumSize: const Size(100, 48),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
-      child: const Text('Sign Out', style: TextStyle(fontSize: 16)),
+      child: Text(label),
     );
   }
 }
