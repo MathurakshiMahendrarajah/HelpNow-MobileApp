@@ -1,109 +1,110 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:helpnow_mobileapp/screens/volunteer/volunteer_dashboard_screen.dart'; // Make sure to create this screen
+import 'package:helpnow_mobileapp/screens/volunteer/volunteer_dashboard_screen.dart'; // Update the correct screen as needed
 
-class VolunteerLoginScreen extends StatefulWidget {
-  @override
-  _VolunteerLoginScreenState createState() => _VolunteerLoginScreenState();
-}
-
-class _VolunteerLoginScreenState extends State<VolunteerLoginScreen> {
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  bool _rememberMe = false;
-  String _errorMessage = '';
-
-  Future<void> _login() async {
-    final email = _emailController.text;
-    final password = _passwordController.text;
-
-    if (email.isEmpty || password.isEmpty) {
-      setState(() {
-        _errorMessage = 'Please fill in all fields.';
-      });
-      return;
-    }
-
-    final response = await http.post(
-      Uri.parse('http://localhost:5000/login'),
-      headers: {'Content-Type': 'application/json'},
-      body: json.encode({'email': email, 'password': password}),
-    );
-
-    if (response.statusCode == 200) {
-      // Handle success, navigate to the next screen
-      final data = json.decode(response.body);
-      final token = data['token'];
-      // Store token for future requests
-      print("Token: $token");
-      // Redirect to Dashboard or another page
-    } else {
-      setState(() {
-        _errorMessage = json.decode(response.body)['message'] ?? 'Login failed';
-      });
-    }
-  }
+class VolunteerLoginScreen extends StatelessWidget {
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Volunteer Login')),
-      body: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          children: <Widget>[
-            const Text(
-              'Login to Volunteer',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 40),
-
-            // Email Field
-            TextField(
-              controller: _emailController,
-              decoration: const InputDecoration(
-                labelText: 'Email',
-                hintText: 'Enter your email',
-              ),
-            ),
-            const SizedBox(height: 20),
-
-            // Password Field
-            TextField(
-              controller: _passwordController,
-              decoration: const InputDecoration(
-                labelText: 'Password',
-                hintText: 'Enter your password',
-              ),
-              obscureText: true,
-            ),
-            const SizedBox(height: 20),
-
-            // Remember Me Checkbox
-            Row(
+      backgroundColor: Colors.grey[100],
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: EdgeInsets.all(24),
+            child: Column(
               children: [
-                Checkbox(
-                  value: _rememberMe,
-                  onChanged: (value) {
-                    setState(() {
-                      _rememberMe = value!;
-                    });
-                  },
+                Icon(
+                  Icons.volunteer_activism,
+                  size: 60,
+                  color: Colors.greenAccent,
                 ),
-                const Text('Remember Me'),
+                const SizedBox(height: 10),
+                Text(
+                  'Volunteer Login',
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.greenAccent,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Making a difference starts with you',
+                  style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                ),
+                const SizedBox(height: 30),
+
+                // Login Card
+                Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  elevation: 4,
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
+                      children: [
+                        buildInputField(
+                          controller: emailController,
+                          label: 'Email or Volunteer ID',
+                          icon: Icons.email,
+                        ),
+                        const SizedBox(height: 16),
+                        buildInputField(
+                          controller: passwordController,
+                          label: 'Password',
+                          icon: Icons.lock,
+                          obscureText: true,
+                        ),
+                        const SizedBox(height: 24),
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => VolunteerDashboard(),
+                              ), // Navigate to Volunteer Dashboard
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.greenAccent,
+                            minimumSize: Size(double.infinity, 48),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: Text('Login', style: TextStyle(fontSize: 16)),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ],
             ),
-            const SizedBox(height: 20),
-
-            // Login Button
-            ElevatedButton(onPressed: _login, child: const Text('Login')),
-            const SizedBox(height: 10),
-
-            // Error Message
-            if (_errorMessage.isNotEmpty)
-              Text(_errorMessage, style: const TextStyle(color: Colors.red)),
-          ],
+          ),
         ),
+      ),
+    );
+  }
+
+  Widget buildInputField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    bool obscureText = false,
+  }) {
+    return TextField(
+      controller: controller,
+      obscureText: obscureText,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(icon),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        filled: true,
+        fillColor: Colors.grey[50],
       ),
     );
   }
