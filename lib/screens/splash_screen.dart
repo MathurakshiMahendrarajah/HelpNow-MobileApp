@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:helpnow_mobileapp/screens/routes.dart';
 import 'package:helpnow_mobileapp/screens/welcome_screen.dart';
@@ -28,10 +29,14 @@ class _SplashScreenState extends State<SplashScreen>
     _animation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
     _controller.forward();
 
-    // Navigate after 3 seconds
-    Timer(const Duration(seconds: 4), () {
+    // Navigate after 4 seconds ONLY if the widget is still mounted
+  Future.delayed(const Duration(seconds: 4), () {
+    if (mounted) {
       Navigator.pushReplacementNamed(context, RouteConfig.welcome);
-    });
+    }
+  });
+    // Check Amplify Auth status before navigating
+  _checkAuthStatus();
   }
 
   @override
@@ -39,6 +44,21 @@ class _SplashScreenState extends State<SplashScreen>
     _controller.dispose();
     super.dispose();
   }
+
+Future<void> _checkAuthStatus() async {
+  try {
+    final session = await Amplify.Auth.fetchAuthSession();
+    safePrint('🔒 User is signed in: ${session.isSignedIn}');
+  } catch (e) {
+    safePrint('❌ Error fetching auth session: $e');
+  }
+
+  // Proceed to next screen after 4 seconds
+  Future.delayed(const Duration(seconds: 4), () {
+    Navigator.pushReplacementNamed(context, RouteConfig.welcome);
+  });
+}
+
 
   @override
   Widget build(BuildContext context) {

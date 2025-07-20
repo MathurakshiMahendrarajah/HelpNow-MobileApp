@@ -1,8 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:helpnow_mobileapp/screens/routes.dart';
+import 'package:amplify_flutter/amplify_flutter.dart';
+import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
+import 'amplifyconfiguration.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await _configureAmplify();
   runApp(const MyApp());
+}
+
+Future<void> _configureAmplify() async {
+  final authPlugin = AmplifyAuthCognito();
+
+  try {
+    await Amplify.addPlugin(authPlugin);
+    await Amplify.configure(amplifyconfig); // from amplifyconfiguration.dart
+    safePrint('✅ Amplify configured');
+  } catch (e) {
+    safePrint('❌ Amplify configuration failed: $e');
+  }
 }
 
 class MyApp extends StatelessWidget {

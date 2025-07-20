@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:helpnow_mobileapp/screens/user/home_tab.dart';
+import 'package:helpnow_mobileapp/screens/user/confirmsignup_screen.dart';
 import 'package:helpnow_mobileapp/screens/user/user_main_screen.dart';
+import 'package:helpnow_mobileapp/services/amplify_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -15,14 +16,150 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailCtrl = TextEditingController();
   final TextEditingController _passwordCtrl = TextEditingController();
-  final TextEditingController _usernameCtrl = TextEditingController(); // Added
+  final TextEditingController _usernameCtrl = TextEditingController();
+  final AmplifyService _amplifyService = AmplifyService();
+
+  bool _isLoading = false;
+  String? _authError;
+
+ Future<void> _submit() async {
+  if (!_formKey.currentState!.validate()) return;
+
+  setState(() {
+    _isLoading = true;
+    _authError = null;
+  });
+
+  try {
+    if (isLogin) {
+      final result = await _amplifyService.signIn(
+        username: _emailCtrl.text.trim(),
+        password: _passwordCtrl.text,
+      );
+
+      if (result != 'SUCCESS') {
+        setState(() {
+          _authError = result;
+        });
+        return;
+      }
+    } else {
+      final result = await _amplifyService.signUp(
+        username: _usernameCtrl.text.trim(),
+        email: _emailCtrl.text.trim(),
+        password: _passwordCtrl.text,
+      );
+
+      if (result != 'SUCCESS' && result != 'CONFIRMATION_REQUIRED') {
+        setState(() {
+          _authError = result;
+        });
+        return;
+      }
+
+      if (result == 'CONFIRMATION_REQUIRED') {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (_) => ConfirmSignUpScreen(
+        username: _usernameCtrl.text.trim(),
+      ),
+    ),
+  );
+  return;
+}
+    }
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (_) => UserMainScreen(),
+      ),
+    );
+  } catch (e) {
+    setState(() {
+      _authError = e.toString();
+    });
+  } finally {
+    setState(() {
+      _isLoading = false;
+    });
+  }
+}
+
+
+  void _forgotPassword() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        final TextEditingController _forgotEmailCtrl = TextEditingController();
+
+        return AlertDialog(
+          title: Text("Reset Password"),
+          content: TextFormField(
+            controller: _forgotEmailCtrl,
+            decoration: InputDecoration(
+              labelText: "Enter your email",
+              border: OutlineInputBorder(),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () async {
+                if (_forgotEmailCtrl.text.isEmpty ||
+                    !_forgotEmailCtrl.text.contains('@')) {
+                  // Simple validation
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text("Please enter a valid email")),
+                  );
+                  return;
+                }
+
+                try {
+                  await _amplifyService.forgotPassword(
+  username: _forgotEmailCtrl.text.trim(),
+);
+
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                        content: Text(
+                            "Password reset email sent. Please check your inbox.")),
+                  );
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text("Error: ${e.toString()}")),
+                  );
+                }
+              },
+              child: Text("Send"),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text("Cancel"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    _emailCtrl.dispose();
+    _passwordCtrl.dispose();
+    _usernameCtrl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(isLogin ? "Login" : "Create Account"),
-        backgroundColor: Color(0xFFFFCCBC),
+        backgroundColor: const Color(0xFFFFCCBC),
       ),
       body: Center(
         child: SingleChildScrollView(
@@ -34,7 +171,8 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             color: Colors.white.withOpacity(0.97),
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 22),
+              padding:
+                  const EdgeInsets.symmetric(vertical: 32.0, horizontal: 22.0),
               child: Form(
                 key: _formKey,
                 child: Column(
@@ -42,62 +180,57 @@ class _LoginScreenState extends State<LoginScreen> {
                   children: [
                     Text(
                       isLogin ? "Welcome Back!" : "Create Your Account",
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 26,
                         fontWeight: FontWeight.bold,
                         color: Colors.deepOrange,
                       ),
                     ),
                     const SizedBox(height: 24),
-                    // Username field only for Create Account
                     if (!isLogin) ...[
                       TextFormField(
                         controller: _usernameCtrl,
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           labelText: "Username",
-                          prefixIcon: Icon(
-                            Icons.person_outline,
-                            color: Colors.deepOrange,
-                          ),
+                          prefixIcon: Icon(Icons.person_outline,
+                              color: Colors.deepOrange),
                           border: OutlineInputBorder(),
                         ),
                         validator: (val) => isLogin
                             ? null
                             : (val == null || val.trim().isEmpty
-                                  ? "Username is required"
-                                  : null),
+                                ? "Username is required"
+                                : null),
                       ),
                       const SizedBox(height: 18),
                     ],
                     TextFormField(
                       controller: _emailCtrl,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: "Email",
-                        prefixIcon: Icon(
-                          Icons.email_outlined,
-                          color: Colors.deepOrange,
-                        ),
+                        prefixIcon:
+                            Icon(Icons.email_outlined, color: Colors.deepOrange),
                         border: OutlineInputBorder(),
                       ),
-                      validator: (val) => val == null || !val.contains('@')
-                          ? "Enter a valid email"
-                          : null,
+                      validator: (val) =>
+                          val == null || !val.contains('@')
+                              ? "Enter a valid email"
+                              : null,
                     ),
                     const SizedBox(height: 18),
                     TextFormField(
                       controller: _passwordCtrl,
                       obscureText: true,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: "Password",
-                        prefixIcon: Icon(
-                          Icons.lock_outline,
-                          color: Colors.deepOrange,
-                        ),
+                        prefixIcon:
+                            Icon(Icons.lock_outline, color: Colors.deepOrange),
                         border: OutlineInputBorder(),
                       ),
-                      validator: (val) => val == null || val.length < 6
-                          ? "Password too short"
-                          : null,
+                      validator: (val) =>
+                          val == null || val.length < 6
+                              ? "Password too short"
+                              : null,
                     ),
                     const SizedBox(height: 10),
                     Row(
@@ -112,52 +245,52 @@ class _LoginScreenState extends State<LoginScreen> {
                           },
                         ),
                         const Text("Remember me"),
-                        Spacer(),
+                        const Spacer(),
                         TextButton(
-                          onPressed: () {
-                            // TODO: Implement forgot password
-                          },
-                          child: Text(
+                          onPressed: isLogin ? _forgotPassword : null,
+                          child: const Text(
                             "Forgot password?",
                             style: TextStyle(color: Colors.deepOrange),
                           ),
                         ),
                       ],
                     ),
+                    if (_authError != null) ...[
+                      const SizedBox(height: 10),
+                      Text(
+                        _authError!,
+                        style: const TextStyle(color: Colors.red),
+                      ),
+                    ],
                     const SizedBox(height: 18),
                     SizedBox(
                       width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          if (_formKey.currentState!.validate()) {
-                            if (_formKey.currentState!.validate()) {
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) =>
-                                      UserMainScreen(isMember: true),
+                      child: _isLoading
+                          ? const Center(
+                              child: CircularProgressIndicator(
+                                color: Colors.deepOrange,
+                              ),
+                            )
+                          : ElevatedButton(
+                              onPressed: _submit,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.deepOrange,
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 16),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(14),
                                 ),
-                              );
-                            }
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.deepOrange,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                          textStyle: const TextStyle(
-                            fontSize: 17,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                        child: Text(
-                          isLogin ? "Login" : "Create Account",
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
+                                textStyle: const TextStyle(
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              child: Text(
+                                isLogin ? "Login" : "Create Account",
+                                style: const TextStyle(color: Colors.white),
+                              ),
+                            ),
                     ),
                     const SizedBox(height: 18),
                     Row(
@@ -167,17 +300,18 @@ class _LoginScreenState extends State<LoginScreen> {
                           isLogin
                               ? "Don't have an account?"
                               : "Already have an account?",
-                          style: TextStyle(fontSize: 13),
+                          style: const TextStyle(fontSize: 13),
                         ),
                         TextButton(
                           onPressed: () {
                             setState(() {
                               isLogin = !isLogin;
+                              _authError = null;
                             });
                           },
                           child: Text(
                             isLogin ? "Create Account" : "Login",
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 13,
                               color: Colors.deepOrange,
                               fontWeight: FontWeight.bold,

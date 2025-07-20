@@ -1,0 +1,10 @@
+{
+  "resourceName": "HelpNowReports",
+  "tableName": "HelpNowReports",
+  "partitionKey": {
+    "fieldName": "reportId",
+    "fieldType": "string"
+  },
+  "gsi": [],
+  "triggerFunctions": []
+}

@@ -149,7 +149,7 @@ class ProfileTab extends StatelessWidget {
                               context,
                               MaterialPageRoute(
                                   builder: (_) =>
-                                      UserMainScreen(isMember: false),
+                                      UserMainScreen(),
                                 ),
                             );
                           },
