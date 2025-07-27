@@ -82,7 +82,7 @@ class AmplifyService {
       final session = await Amplify.Auth.fetchAuthSession();
       return session.isSignedIn;
     } on AuthException {
-      return false;
+      return false; 
     }
   }
 
@@ -98,6 +98,28 @@ class AmplifyService {
     return res.isSignUpComplete ? 'SUCCESS' : 'FAILED';
   } on AuthException catch (e) {
     return e.message;
+  }
+}
+
+Future<void> confirmForgotPassword({
+  required String username,
+  required String newPassword,
+  required String confirmationCode,
+}) async {
+  try {
+    final result = await Amplify.Auth.confirmResetPassword(
+      username: username,
+      newPassword: newPassword,
+      confirmationCode: confirmationCode,
+    );
+
+    if (result.isPasswordReset) {
+      print("Password reset successful");
+    } else {
+      throw Exception("Password reset not completed.");
+    }
+  } catch (e) {
+    rethrow;
   }
 }
 

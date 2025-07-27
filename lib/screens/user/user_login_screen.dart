@@ -89,62 +89,106 @@ class _LoginScreenState extends State<LoginScreen> {
 
 
   void _forgotPassword() {
-    showDialog(
-      context: context,
-      builder: (context) {
-        final TextEditingController _forgotEmailCtrl = TextEditingController();
+  final TextEditingController _emailCtrl = TextEditingController();
+  final TextEditingController _codeCtrl = TextEditingController();
+  final TextEditingController _newPasswordCtrl = TextEditingController();
 
-        return AlertDialog(
-          title: Text("Reset Password"),
-          content: TextFormField(
-            controller: _forgotEmailCtrl,
-            decoration: InputDecoration(
-              labelText: "Enter your email",
-              border: OutlineInputBorder(),
+  showDialog(
+    context: context,
+    builder: (context) {
+      bool codeSent = false;
+
+      return StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            title: Text("Reset Password"),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (!codeSent) ...[
+                  TextFormField(
+                    controller: _emailCtrl,
+                    decoration: InputDecoration(
+                      labelText: "Enter your email",
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ] else ...[
+                  TextFormField(
+                    controller: _codeCtrl,
+                    decoration: InputDecoration(
+                      labelText: "Verification Code",
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  TextFormField(
+                    controller: _newPasswordCtrl,
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      labelText: "New Password",
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ],
+              ],
             ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () async {
-                if (_forgotEmailCtrl.text.isEmpty ||
-                    !_forgotEmailCtrl.text.contains('@')) {
-                  // Simple validation
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text("Please enter a valid email")),
-                  );
-                  return;
-                }
-
-                try {
-                  await _amplifyService.forgotPassword(
-  username: _forgotEmailCtrl.text.trim(),
-);
-
+            actions: [
+              if (!codeSent)
+                TextButton(
+                  onPressed: () async {
+                    try {
+                      await _amplifyService.forgotPassword(
+                        username: _emailCtrl.text.trim(),
+                      );
+                      setState(() {
+                        codeSent = true;
+                      });
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("Code sent to email.")),
+                      );
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("Error: ${e.toString()}")),
+                      );
+                    }
+                  },
+                  child: Text("Send Code"),
+                )
+              else
+                TextButton(
+                  onPressed: () async {
+                    try {
+                      await _amplifyService.confirmForgotPassword(
+                        username: _emailCtrl.text.trim(),
+                        newPassword: _newPasswordCtrl.text,
+                        confirmationCode: _codeCtrl.text,
+                      );
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("Password successfully reset.")),
+                      );
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("Error: ${e.toString()}")),
+                      );
+                    }
+                  },
+                  child: Text("Confirm Reset"),
+                ),
+              TextButton(
+                onPressed: () {
                   Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                        content: Text(
-                            "Password reset email sent. Please check your inbox.")),
-                  );
-                } catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text("Error: ${e.toString()}")),
-                  );
-                }
-              },
-              child: Text("Send"),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text("Cancel"),
-            ),
-          ],
-        );
-      },
-    );
-  }
+                },
+                child: Text("Cancel"),
+              ),
+            ],
+          );
+        },
+      );
+    },
+  );
+}
 
   @override
   void dispose() {

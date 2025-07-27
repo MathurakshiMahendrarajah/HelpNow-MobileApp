@@ -1,23 +1,18 @@
 import 'package:flutter/material.dart';
 import 'home_tab.dart';
 import 'report_tab.dart';
-import 'track_tab.dart';
+import 'track_tab.dart'; 
 import 'profile_tab.dart';
 import 'package:amplify_flutter/amplify_flutter.dart'; // import this
+
 class UserMainScreen extends StatefulWidget {
   final int selectedIndex;
   final String? caseId;
-  const UserMainScreen({
-    super.key,
-    this.selectedIndex = 0,
-    this.caseId,
-  });
+  const UserMainScreen({super.key, this.selectedIndex = 0, this.caseId});
 
   @override
   State<UserMainScreen> createState() => _UserMainScreenState();
 }
-
-
 
 class _UserMainScreenState extends State<UserMainScreen> {
   late int _selectedIndex;
@@ -52,13 +47,10 @@ class _UserMainScreenState extends State<UserMainScreen> {
 
   List<Widget> get _screens {
     return [
-      UserHomeScreen(
-        isMember: _isMember,
-        onNavigateTab: _changeTab,
-      ),
+      UserHomeScreen(isMember: _isMember, onNavigateTab: _changeTab),
       const ReportTab(),
       const TrackTab(),
-      ProfileTab(isMember: _isMember),
+      ProfileTab(),
     ];
   }
 
@@ -81,7 +73,10 @@ class _UserMainScreenState extends State<UserMainScreen> {
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.report), label: 'Report'),
-          BottomNavigationBarItem(icon: Icon(Icons.track_changes), label: 'Track'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.track_changes),
+            label: 'Track',
+          ),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
       ),
