@@ -6,7 +6,6 @@ import 'package:helpnow_mobileapp/screens/user/user_main_screen.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:amplify_storage_s3/amplify_storage_s3.dart';
 
 class ReportTab extends StatefulWidget {
   const ReportTab({super.key});
