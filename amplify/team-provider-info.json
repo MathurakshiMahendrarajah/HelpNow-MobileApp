@@ -27,7 +27,8 @@
         "HelpNowReports": {}
       },
       "api": {
-        "ReportAPI": {}
+        "ReportAPI": {},
+        "helpnow": {}
       }
     }
   }

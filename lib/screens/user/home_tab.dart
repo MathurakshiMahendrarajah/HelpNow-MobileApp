@@ -57,7 +57,7 @@ class UserHomeScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Hero image
+          // Hero image 
           const SizedBox(height: 18),
           Text(
             'Be the reason someone smiles today.',

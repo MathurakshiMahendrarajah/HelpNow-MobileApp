@@ -9,6 +9,13 @@ const amplifyconfig = '''{
                     "endpoint": "https://zqkjox3jo9.execute-api.ap-south-1.amazonaws.com/dev",
                     "region": "ap-south-1",
                     "authorizationType": "AWS_IAM"
+                },
+                "helpnow": {
+                    "endpointType": "GraphQL",
+                    "endpoint": "https://tafu5l6wcvf6xezno4avgkk4wu.appsync-api.ap-south-1.amazonaws.com/graphql",
+                    "region": "ap-south-1",
+                    "authorizationType": "API_KEY",
+                    "apiKey": "da2-v6txkfnkdnhtvkrihxq2d5yodi"
                 }
             }
         }
@@ -68,6 +75,15 @@ const amplifyconfig = '''{
                 "DynamoDBObjectMapper": {
                     "Default": {
                         "Region": "ap-south-1"
+                    }
+                },
+                "AppSync": {
+                    "Default": {
+                        "ApiUrl": "https://tafu5l6wcvf6xezno4avgkk4wu.appsync-api.ap-south-1.amazonaws.com/graphql",
+                        "Region": "ap-south-1",
+                        "AuthMode": "API_KEY",
+                        "ApiKey": "da2-v6txkfnkdnhtvkrihxq2d5yodi",
+                        "ClientDatabasePrefix": "helpnow_API_KEY"
                     }
                 }
             }

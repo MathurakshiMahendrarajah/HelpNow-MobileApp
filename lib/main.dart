@@ -3,6 +3,8 @@ import 'package:helpnow_mobileapp/screens/routes.dart';
 import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
 import 'amplifyconfiguration.dart';
+import 'package:amplify_storage_s3/amplify_storage_s3.dart';
+import 'package:amplify_api/amplify_api.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -12,10 +14,18 @@ void main() async {
 
 Future<void> _configureAmplify() async {
   final authPlugin = AmplifyAuthCognito();
+  final storagePlugin = AmplifyStorageS3();     // 👈 Add this
+  final apiPlugin = AmplifyAPI();  
+
 
   try {
-    await Amplify.addPlugin(authPlugin);
-    await Amplify.configure(amplifyconfig); // from amplifyconfiguration.dart
+    await Amplify.addPlugins([
+      authPlugin,
+      storagePlugin,
+      apiPlugin,
+    ]);
+
+    await Amplify.configure(amplifyconfig);
     safePrint('✅ Amplify configured');
   } catch (e) {
     safePrint('❌ Amplify configuration failed: $e');
