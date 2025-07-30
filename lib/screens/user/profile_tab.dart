@@ -158,58 +158,22 @@ class _ProfileTabState extends State<ProfileTab> {
                 context,
                 icon: Icons.logout,
                 text: 'Logout',
-                onTap: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: const Text('Confirm Logout'),
-                      content: const Text('Are you sure you want to logout?'),
-                      actions: [
-                        TextButton(
-                          child: const Text('Cancel'),
-                          onPressed: () =>
-                              Navigator.of(context).pop(), // close dialog
-                        ),
-                        TextButton(
-                          child: const Text('Logout'),
-                          onPressed: () async {
-                            Navigator.of(
-                              context,
-                            ).pop(); // Close the dialog first
+                onTap: () async {
+                  try {
+                    await _amplifyService.signOut();
 
-                            try {
-                              await _amplifyService.signOut();
-
-                              // Make sure widget is still active
-                              if (!context.mounted) return;
-
-                              // Navigate to WelcomeScreen and remove all previous routes
-                              Navigator.of(
-                                context,
-                                rootNavigator: true,
-                              ).pushAndRemoveUntil(
-                                MaterialPageRoute(
-                                  builder: (_) => const WelcomeScreen(),
-                                ),
-                                (route) => false,
-                              );
-                            } catch (e) {
-                              // Show error only if the widget is still mounted
-                              if (context.mounted) {
-                                // Delay slightly to ensure context is stable (optional)
-                                await Future.delayed(
-                                  const Duration(milliseconds: 100),
-                                );
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text('Logout failed: $e')),
-                                );
-                              }
-                            }
-                          },
-                        ),
-                      ],
-                    ),
-                  );
+                    // After successful sign out, navigate to WelcomeScreen
+                    Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(builder: (_) => const WelcomeScreen()),
+                      (route) => false, // This clears the backstack
+                    );
+                  } catch (e) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Logout failed: $e')),
+                      );
+                    }
+                  }
                 },
               ),
           ],

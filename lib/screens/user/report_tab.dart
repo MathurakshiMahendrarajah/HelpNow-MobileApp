@@ -1,3 +1,4 @@
+import 'package:amplify_flutter/amplify_flutter.dart'; // for Amplify.API
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -5,7 +6,7 @@ import 'package:helpnow_mobileapp/screens/user/user_main_screen.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:uuid/uuid.dart';
+import 'package:amplify_storage_s3/amplify_storage_s3.dart';
 
 class ReportTab extends StatefulWidget {
   const ReportTab({super.key});
@@ -19,7 +20,10 @@ class _ReportFormScreenState extends State<ReportTab> {
   final TextEditingController _nameCtrl = TextEditingController();
   final TextEditingController _locationCtrl = TextEditingController();
   final TextEditingController _noteCtrl = TextEditingController();
+  final ImagePicker _picker = ImagePicker();
   File? _selectedImage;
+  bool _isUploadingImage = false;
+  String? _uploadedImageUrl;
   bool _isSubmitted = false;
   String? _caseId;
   bool _isSubmitting = false;
@@ -41,23 +45,124 @@ class _ReportFormScreenState extends State<ReportTab> {
   }
 
   Future<void> _pickImage(ImageSource source) async {
-    final picked = await ImagePicker().pickImage(source: source);
-    if (picked != null) {
+    final pickedFile = await _picker.pickImage(source: source, maxWidth: 800);
+    if (pickedFile != null) {
       setState(() {
-        _selectedImage = File(picked.path);
+        _selectedImage = File(pickedFile.path);
       });
     }
   }
 
-  Future<void> _submitForm() async {
-    if (_formKey.currentState!.validate()) {
+  Future<void> _uploadImage() async {
+    if (_selectedImage == null) return;
+
+    setState(() {
+      _isUploadingImage = true;
+    });
+
+    try {
+      final fileName =
+          'report-images/${DateTime.now().millisecondsSinceEpoch}.jpg';
+      final awsFile = AWSFile.fromPath(_selectedImage!.path);
+
+      final uploadOperation = await Amplify.Storage.uploadFile(
+        localFile: awsFile,
+        path: StoragePath.fromString(fileName),
+      );
+      await uploadOperation.result; // wait for upload to complete
+
+      final getUrlOperation = await Amplify.Storage.getUrl(
+        path: StoragePath.fromString(fileName),
+      );
+
+      final url = (await getUrlOperation.result).url.toString();
+
       setState(() {
-        _isSubmitting = true;
+        _uploadedImageUrl = url;
       });
-      await Future.delayed(const Duration(seconds: 2)); // Simulate network
+    } catch (e) {
+      print('❌ Image upload failed: $e');
+    } finally {
       setState(() {
-        _caseId = const Uuid().v4().substring(0, 8).toUpperCase();
-        _isSubmitted = true;
+        _isUploadingImage = false;
+      });
+    }
+  }
+
+  String generateCaseId() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    final rand = DateTime.now().millisecondsSinceEpoch;
+    final randomPart = List.generate(
+      5,
+      (index) => chars[rand % chars.length],
+    ).join();
+    return 'RPT-$randomPart';
+  }
+
+  Future<void> _submitReportGraphQL() async {
+    setState(() {
+      _isSubmitting = true;
+    });
+    if (_selectedImage != null && _uploadedImageUrl == null) {
+      await _uploadImage();
+    }
+    try {
+      final now = TemporalDateTime.now();
+      final caseId = generateCaseId(); // 👈 Generate short ID like "A7X9P2"
+
+      final mutation = '''
+      mutation CreateReport(\$input: CreateReportInput!) {
+        createReport(input: \$input) {
+          id
+          caseId
+          title
+          description
+          location
+          imageUrl
+          createdAt
+        }
+      }
+    ''';
+
+      final variables = {
+        "input": {
+          "userId": "user123",
+          "caseId": caseId,
+          "title": _nameCtrl.text,
+          "description": _noteCtrl.text,
+          "location": _locationCtrl.text,
+          "imageUrl": _uploadedImageUrl,
+          "createdAt": now.format(),
+        },
+      };
+
+      final request = GraphQLRequest<String>(
+        document: mutation,
+        variables: variables,
+      );
+
+      final response = await Amplify.API.mutate(request: request).response;
+
+      if (response.errors.isEmpty) {
+        setState(() {
+          _isSubmitting = false;
+          _isSubmitted = true;
+          _caseId = caseId;
+
+          // Clear form fields
+          _nameCtrl.clear();
+          _noteCtrl.clear();
+          _locationCtrl.clear();
+        });
+      } else {
+        debugPrint('❌ GraphQL Errors: ${response.errors}');
+        setState(() {
+          _isSubmitting = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('❌ Exception: $e');
+      setState(() {
         _isSubmitting = false;
       });
     }
@@ -218,7 +323,8 @@ class _ReportFormScreenState extends State<ReportTab> {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
-                      onPressed: _submitForm,
+                      onPressed:
+                          _submitReportGraphQL, // not _submitReportToAWS directly
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.deepOrangeAccent,
                         padding: const EdgeInsets.symmetric(vertical: 16),
@@ -231,7 +337,7 @@ class _ReportFormScreenState extends State<ReportTab> {
                         ),
                         elevation: 4,
                       ),
-                      icon: Icon(Icons.send_rounded, color: Colors.white),
+                      icon: const Icon(Icons.send_rounded, color: Colors.white),
                       label: const Text(
                         "Submit Report",
                         style: TextStyle(color: Colors.white),
