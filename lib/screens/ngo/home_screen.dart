@@ -36,32 +36,41 @@ class _NGODashboardScreenState extends State<HomeScreen> {
           await Future.delayed(const Duration(seconds: 1));
         },
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(20.0),
           child: Column(
             children: [
               // Status Filters with Choice Chips
               SizedBox(
                 height: 50,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  children: ['All Cases', 'Pending', 'In Progress', 'Solved']
-                      .map(
-                        (status) => Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 4),
-                          child: ChoiceChip(
-                            label: Text(status),
-                            selected: selectedStatus == status,
-                            selectedColor: Colors.deepPurpleAccent,
-                            onSelected: (val) {
-                              setState(() {
-                                selectedStatus = status;
-                              });
-                            },
-                          ),
-                        ),
-                      )
-                      .toList(),
+                child: Center(
+                  child: SizedBox(
+                    width: double.infinity, // Ensures it takes full width of the screen
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: ['All Cases', 'Pending', 'In Progress', 'Solved']
+                            .map(
+                              (status) => Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 8),
+                                child: ChoiceChip(
+                                  label: Text(status),
+                                  selected: selectedStatus == status,
+                                  selectedColor: Colors.deepPurpleAccent,
+                                  onSelected: (val) {
+                                    setState(() {
+                                      selectedStatus = status;
+                                    });
+                                  },
+                                ),
+                              ),
+                            )
+                            .toList(),
+                      ),
+                    ),
+                  ),
                 ),
+
               ),
               const SizedBox(height: 20),
 
