@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:helpnow_mobileapp/screens/volunteer/volunteer_dashboard_screen.dart'; // Make sure to create this screen
-import 'package:helpnow_mobileapp/screens/volunteer/volunteer_dashboard_screen.dart'; // Update the correct screen as needed
+import 'package:helpnow_mobileapp/screens/volunteer/volunteer_dashboard_screen.dart';
+import 'package:helpnow_mobileapp/screens/volunteer/volunteer_register_screen.dart'; // Create this screen
 
 class VolunteerLoginScreen extends StatelessWidget {
   final TextEditingController emailController = TextEditingController();
@@ -60,13 +60,15 @@ class VolunteerLoginScreen extends StatelessWidget {
                           obscureText: true,
                         ),
                         const SizedBox(height: 24),
+
+                        // Login button
                         ElevatedButton(
                           onPressed: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (_) => VolunteerDashboard(),
-                              ), // Navigate to Volunteer Dashboard
+                              ),
                             );
                           },
                           style: ElevatedButton.styleFrom(
@@ -77,6 +79,37 @@ class VolunteerLoginScreen extends StatelessWidget {
                             ),
                           ),
                           child: Text('Login', style: TextStyle(fontSize: 16)),
+                        ),
+                        const SizedBox(height: 12),
+
+                        // Register button
+                        OutlinedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => VolunteerRegisterScreen(),
+                              ),
+                            );
+                          },
+                          style: OutlinedButton.styleFrom(
+                            minimumSize: Size(double.infinity, 48),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            side: BorderSide(
+                              color: Colors.greenAccent,
+                              width: 2,
+                            ),
+                          ),
+                          child: Text(
+                            'Not a volunteer yet? Register',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.greenAccent,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                       ],
                     ),
