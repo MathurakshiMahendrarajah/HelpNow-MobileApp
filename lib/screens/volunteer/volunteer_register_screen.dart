@@ -12,14 +12,32 @@ class _VolunteerRegisterScreenState extends State<VolunteerRegisterScreen> {
   // Step 1 controllers
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController =
       TextEditingController();
 
   // Step 2 controllers
-  final TextEditingController incomeController = TextEditingController();
   String? selectedDistrict;
   String? selectedAvailability;
+  final TextEditingController skillsController = TextEditingController();
+  final TextEditingController languagesController = TextEditingController();
+  final TextEditingController emergencyContactController =
+      TextEditingController();
+
+  bool agreedToTerms = false;
+
+  // Volunteer help types (multi-selection)
+  List<String> helpTypes = [
+    'Food Distribution',
+    'Clothes Donation',
+    'Education / Tutoring',
+    'Medical Help',
+    'Transportation',
+    'Fundraising',
+    'Other',
+  ];
+  List<String> selectedHelpTypes = [];
 
   int currentPage = 0;
 
@@ -52,11 +70,19 @@ class _VolunteerRegisterScreenState extends State<VolunteerRegisterScreen> {
     ).showSnackBar(SnackBar(content: Text('Current district set to Colombo')));
   }
 
-  void _pickIncomeProof() {
-    // TODO: Implement actual file picker here
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Upload proof clicked - implement file picker!')),
-    );
+  void _registerVolunteer() {
+    if (!agreedToTerms) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Please agree to the Terms & Conditions")),
+      );
+      return;
+    }
+
+    // TODO: Add form validation + API submission
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text("Registered successfully!")));
+    Navigator.pop(context);
   }
 
   @override
@@ -98,7 +124,7 @@ class _VolunteerRegisterScreenState extends State<VolunteerRegisterScreen> {
               ),
             ),
 
-            // Form Steps with button below each form
+            // Form Steps
             Expanded(
               child: PageView(
                 controller: _pageController,
@@ -117,13 +143,7 @@ class _VolunteerRegisterScreenState extends State<VolunteerRegisterScreen> {
                   buildStepWithButton(
                     stepWidget: buildStep2(),
                     buttonText: "Register",
-                    onButtonPressed: () {
-                      // Submit form logic here
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("Registered successfully!")),
-                      );
-                      Navigator.pop(context);
-                    },
+                    onButtonPressed: _registerVolunteer,
                     showBackButton: true,
                     onBackPressed: prevPage,
                   ),
@@ -198,6 +218,13 @@ class _VolunteerRegisterScreenState extends State<VolunteerRegisterScreen> {
             ),
             const SizedBox(height: 16),
             buildInputField(
+              controller: phoneController,
+              label: 'Phone Number',
+              icon: Icons.phone,
+              keyboardType: TextInputType.phone,
+            ),
+            const SizedBox(height: 16),
+            buildInputField(
               controller: passwordController,
               label: 'Password',
               icon: Icons.lock,
@@ -243,27 +270,15 @@ class _VolunteerRegisterScreenState extends State<VolunteerRegisterScreen> {
                           'Gampaha',
                           'Kalutara',
                           'Kandy',
-                          'Matale',
-                          'Nuwara Eliya',
+                          'Jaffna',
                           'Galle',
                           'Matara',
-                          'Hambantota',
-                          'Jaffna',
-                          'Kilinochchi',
-                          'Mannar',
-                          'Vavuniya',
-                          'Mullaitivu',
                           'Batticaloa',
-                          'Ampara',
                           'Trincomalee',
                           'Kurunegala',
-                          'Puttalam',
                           'Anuradhapura',
-                          'Polonnaruwa',
                           'Badulla',
-                          'Moneragala',
                           'Ratnapura',
-                          'Kegalle',
                         ].map((district) {
                           return DropdownMenuItem(
                             value: district,
@@ -296,36 +311,29 @@ class _VolunteerRegisterScreenState extends State<VolunteerRegisterScreen> {
 
             const SizedBox(height: 16),
 
-            Row(
-              children: [
-                Expanded(
-                  flex: 3,
-                  child: buildInputField(
-                    controller: incomeController,
-                    label: 'Annual Income',
-                    icon: Icons.attach_money,
-                    keyboardType: TextInputType.number,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  flex: 2,
-                  child: ElevatedButton.icon(
-                    onPressed: _pickIncomeProof,
-                    icon: Icon(Icons.upload_file),
-                    label: Text('Upload Proof'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.greenAccent,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      padding: EdgeInsets.symmetric(vertical: 14),
-                      minimumSize: Size(double.infinity, 48),
-                    ),
-                  ),
-                ),
-              ],
+            // Volunteer Help Types (multi-checkbox)
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                "Type of Help You Can Offer",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
             ),
+            ...helpTypes.map((help) {
+              return CheckboxListTile(
+                title: Text(help),
+                value: selectedHelpTypes.contains(help),
+                onChanged: (val) {
+                  setState(() {
+                    if (val == true) {
+                      selectedHelpTypes.add(help);
+                    } else {
+                      selectedHelpTypes.remove(help);
+                    }
+                  });
+                },
+              );
+            }).toList(),
 
             const SizedBox(height: 16),
 
@@ -349,6 +357,42 @@ class _VolunteerRegisterScreenState extends State<VolunteerRegisterScreen> {
                   selectedAvailability = value;
                 });
               },
+            ),
+
+            const SizedBox(height: 16),
+
+            buildInputField(
+              controller: skillsController,
+              label: 'Skills & Expertise',
+              icon: Icons.star,
+            ),
+            const SizedBox(height: 16),
+
+            buildInputField(
+              controller: languagesController,
+              label: 'Languages Spoken',
+              icon: Icons.language,
+            ),
+            const SizedBox(height: 16),
+
+            buildInputField(
+              controller: emergencyContactController,
+              label: 'Emergency Contact Number',
+              icon: Icons.contact_phone,
+              keyboardType: TextInputType.phone,
+            ),
+
+            const SizedBox(height: 16),
+
+            CheckboxListTile(
+              value: agreedToTerms,
+              onChanged: (val) {
+                setState(() {
+                  agreedToTerms = val ?? false;
+                });
+              },
+              title: Text("I agree to the Terms & Conditions"),
+              controlAffinity: ListTileControlAffinity.leading,
             ),
           ],
         ),
