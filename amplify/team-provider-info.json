@@ -19,7 +19,7 @@
       "function": {
         "submitReportFunction": {
           "deploymentBucketName": "amplify-helpnow-dev-a26c4-deployment",
-          "s3Key": "amplify-builds/submitReportFunction-4d704d61437a4f2b7648-build.zip"
+          "s3Key": "amplify-builds/submitReportFunction-464b64644a7739575142-build.zip"
         }
       },
       "storage": {
