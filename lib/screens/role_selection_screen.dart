@@ -1,13 +1,8 @@
 import 'package:flutter/material.dart';
-<<<<<<< HEAD
-import 'package:helpnow_mobileapp/screens/volunteer/volunteer_login_screen.dart'; // Import the Volunteer Login Screen
-import 'package:helpnow_mobileapp/screens/ngo/ngo_login_screen.dart'; // Import the NGO Login Screen
-=======
 import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:helpnow_mobileapp/screens/ngo/ngo_login_screen.dart';
 import 'package:helpnow_mobileapp/screens/volunteer/volunteer_login_screen.dart';
 import 'package:helpnow_mobileapp/screens/user/user_login_screen.dart';
->>>>>>> a7e49b5753e1d42a6d22f1592fb206837b484898
 
 class RoleSelectionScreen extends StatefulWidget {
   const RoleSelectionScreen({super.key});
@@ -92,13 +87,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
               onPressed: () {
                 Navigator.push(
                   context,
-<<<<<<< HEAD
-                  MaterialPageRoute(
-                    builder: (_) => NGOSignInScreen(),
-                  ), // Navigate to NGO login screen
-=======
                   MaterialPageRoute(builder: (_) => NGOSignInScreen()),
->>>>>>> a7e49b5753e1d42a6d22f1592fb206837b484898
                 );
               },
             ),
@@ -118,14 +107,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
               onPressed: () {
                 Navigator.push(
                   context,
-<<<<<<< HEAD
-                  MaterialPageRoute(
-                    builder: (_) =>
-                        VolunteerLoginScreen(), // Navigate to Volunteer login screen
-                  ),
-=======
                   MaterialPageRoute(builder: (_) => VolunteerLoginScreen()),
->>>>>>> a7e49b5753e1d42a6d22f1592fb206837b484898
                 );
               },
             ),
