@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:helpnow_mobileapp/screens/ngo/ngo_login_screen.dart'; // Import the NGO Login Screen
 import 'package:helpnow_mobileapp/screens/volunteer/volunteer_login_screen.dart'; // Import the Volunteer Login Screen
+import 'package:helpnow_mobileapp/screens/ngo/ngo_login_screen.dart'; // Import the NGO Login Screen
 
 class RoleSelectionScreen extends StatelessWidget {
   const RoleSelectionScreen({super.key});
@@ -38,8 +38,10 @@ class RoleSelectionScreen extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => NGOSignInScreen()),
-                ); // Navigate to NGO login screen
+                  MaterialPageRoute(
+                    builder: (_) => NGOSignInScreen(),
+                  ), // Navigate to NGO login screen
+                );
               },
             ),
             const SizedBox(height: 20),
@@ -59,8 +61,9 @@ class RoleSelectionScreen extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => VolunteerLoginScreen(),
-                  ), // Navigate to Volunteer login screen
+                    builder: (_) =>
+                        VolunteerLoginScreen(), // Navigate to Volunteer login screen
+                  ),
                 );
               },
             ),

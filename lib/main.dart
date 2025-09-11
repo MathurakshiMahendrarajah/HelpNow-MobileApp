@@ -14,16 +14,11 @@ void main() async {
 
 Future<void> _configureAmplify() async {
   final authPlugin = AmplifyAuthCognito();
-  final storagePlugin = AmplifyStorageS3();     // 👈 Add this
-  final apiPlugin = AmplifyAPI();  
-
+  final storagePlugin = AmplifyStorageS3(); // 👈 Add this
+  final apiPlugin = AmplifyAPI();
 
   try {
-    await Amplify.addPlugins([
-      authPlugin,
-      storagePlugin,
-      apiPlugin,
-    ]);
+    await Amplify.addPlugins([authPlugin, storagePlugin, apiPlugin]);
 
     await Amplify.configure(amplifyconfig);
     safePrint('✅ Amplify configured');

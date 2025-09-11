@@ -37,7 +37,7 @@ dependencies:
   amplify_datastore: ^2.6.6
   amplify_api_dart: ^0.5.11
   aws_common: ^0.7.10
-
+  animated_text_kit: ^4.2.1
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
