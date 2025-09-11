@@ -1,9 +1,58 @@
 import 'package:flutter/material.dart';
-import 'package:helpnow_mobileapp/screens/ngo/ngo_login_screen.dart'; // Import the NGO Login Screen
-import 'package:helpnow_mobileapp/screens/volunteer/volunteer_login_screen.dart'; // Import the Volunteer Login Screen
+import 'package:amplify_flutter/amplify_flutter.dart';
+import 'package:helpnow_mobileapp/screens/ngo/ngo_login_screen.dart';
+import 'package:helpnow_mobileapp/screens/volunteer/volunteer_login_screen.dart';
+import 'package:helpnow_mobileapp/screens/user/user_login_screen.dart';
 
-class RoleSelectionScreen extends StatelessWidget {
+class RoleSelectionScreen extends StatefulWidget {
   const RoleSelectionScreen({super.key});
+
+  @override
+  State<RoleSelectionScreen> createState() => _RoleSelectionScreenState();
+}
+
+class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _checkCurrentUser();
+  }
+
+  Future<void> _checkCurrentUser() async {
+    try {
+      final user = await Amplify.Auth.getCurrentUser();
+
+      if (user != null) {
+        // 🔹 You can check Cognito groups or user attributes to know the role
+        final attributes = await Amplify.Auth.fetchUserAttributes();
+
+        String? role;
+        for (var attr in attributes) {
+          if (attr.userAttributeKey.key == 'custom:role') {
+            role = attr.value; // e.g., "ngo", "volunteer", "public"
+          }
+        }
+
+        Widget nextScreen;
+
+        if (role == 'ngo') {
+          nextScreen = NGOSignInScreen();
+        } else if (role == 'volunteer') {
+          nextScreen = VolunteerLoginScreen();
+        } else {
+          nextScreen = LoginScreen(); // fallback default
+        }
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => nextScreen),
+        );
+      }
+    } on AuthException catch (e) {
+      safePrint('No user signed in: ${e.message}');
+      // Stay on role selection screen
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +88,7 @@ class RoleSelectionScreen extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (_) => NGOSignInScreen()),
-                ); // Navigate to NGO login screen
+                );
               },
             ),
             const SizedBox(height: 20),
@@ -58,9 +107,7 @@ class RoleSelectionScreen extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (_) => VolunteerLoginScreen(),
-                  ), // Navigate to Volunteer login screen
+                  MaterialPageRoute(builder: (_) => VolunteerLoginScreen()),
                 );
               },
             ),

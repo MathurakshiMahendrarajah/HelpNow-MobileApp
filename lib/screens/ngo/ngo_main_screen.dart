@@ -1,36 +1,49 @@
 import 'package:flutter/material.dart';
+import 'package:helpnow_mobileapp/screens/ngo/case_dashboard_screen.dart';
+import 'package:helpnow_mobileapp/screens/ngo/volunteer_dashboard_screen.dart';
 import 'package:helpnow_mobileapp/screens/ngo/profile_screen.dart';
-import 'home_screen.dart';
 
 class NGOMainScreen extends StatefulWidget {
-  const NGOMainScreen({super.key});
-
   @override
   State<NGOMainScreen> createState() => _NGOMainScreenState();
 }
 
 class _NGOMainScreenState extends State<NGOMainScreen> {
-  int _currentIndex = 0;
+  int _selectedIndex = 0;
+
   final List<Widget> _screens = [
-    HomeScreen(),
+    CaseDashboardScreen(),
+    VolunteerDashboardScreen(),
     ProfileScreen(),
   ];
+
+  static const primaryRed = Color(0xFFEC1337);
+  static const backgroundPink = Color(0xFFFCF8F9);
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _screens[_currentIndex],
+      backgroundColor: backgroundPink,
+      body: _screens[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        selectedItemColor: Colors.deepPurpleAccent,
-        unselectedItemColor: Colors.grey,
-        onTap: (index) {
-          setState(() => _currentIndex = index);
-        },
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+        selectedItemColor: primaryRed,
+        unselectedItemColor: Colors.grey[600],
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.dashboard),
-            label: 'Dashboard',
+            label: 'Cases',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.volunteer_activism),
+            label: 'Volunteers',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),

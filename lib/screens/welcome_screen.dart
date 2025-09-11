@@ -1,10 +1,61 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:helpnow_mobileapp/screens/role_selection_screen.dart';
 import 'package:helpnow_mobileapp/screens/user/user_main_screen.dart';
+import 'package:helpnow_mobileapp/screens/ngo/ngo_login_screen.dart';
+import 'package:helpnow_mobileapp/screens/volunteer/volunteer_login_screen.dart';
 
-class WelcomeScreen extends StatelessWidget {
+class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
+
+  @override
+  State<WelcomeScreen> createState() => _WelcomeScreenState();
+}
+
+class _WelcomeScreenState extends State<WelcomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _checkCurrentUser();
+  }
+
+  Future<void> _checkCurrentUser() async {
+    try {
+      final user = await Amplify.Auth.getCurrentUser();
+
+      if (user != null) {
+        // Fetch role from Cognito attributes (assuming custom:role is set)
+        final attributes = await Amplify.Auth.fetchUserAttributes();
+
+        String? role;
+        for (var attr in attributes) {
+          if (attr.userAttributeKey.key == 'custom:role') {
+            role = attr.value; // "ngo", "volunteer", "public"
+          }
+        }
+
+        Widget nextScreen;
+
+        if (role == 'ngo') {
+          nextScreen = NGOSignInScreen();
+        } else if (role == 'volunteer') {
+          nextScreen = VolunteerLoginScreen();
+        } else {
+          nextScreen = const UserMainScreen(selectedIndex: 0);
+        }
+
+        // Skip welcome screen
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => nextScreen),
+        );
+      }
+    } on AuthException catch (e) {
+      safePrint("No signed-in user: ${e.message}");
+      // stay on welcome screen
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +80,7 @@ class WelcomeScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   const SizedBox(height: 20),
-                  Text(
+                  const Text(
                     'Welcome to HelpNow',
                     style: TextStyle(
                       fontSize: 30,
@@ -39,7 +90,7 @@ class WelcomeScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  Text(
+                  const Text(
                     '"Be the reason someone smiles today"',
                     style: TextStyle(fontSize: 16, color: Colors.white70),
                   ),
@@ -51,7 +102,7 @@ class WelcomeScreen extends StatelessWidget {
                     icon: Icons.volunteer_activism,
                     title: 'Get Help',
                     subtitle: 'Report a case or track your request.',
-                    color: Color(0xFFFF7043),
+                    color: const Color(0xFFFF7043),
                     onPressed: () {
                       Navigator.push(
                         context,
@@ -70,12 +121,12 @@ class WelcomeScreen extends StatelessWidget {
                     icon: Icons.login,
                     title: 'Login as NGO/Volunteer',
                     subtitle: 'Access dashboard and manage help requests.',
-                    color: Color(0xFF2E7D32),
+                    color: const Color(0xFF2E7D32),
                     onPressed: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => RoleSelectionScreen(),
+                          builder: (_) => const RoleSelectionScreen(),
                         ),
                       );
                     },
