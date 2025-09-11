@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'home_tab.dart';
 import 'report_tab.dart';
-import 'track_tab.dart'; 
+import 'track_tab.dart';
 import 'profile_tab.dart';
-import 'package:amplify_flutter/amplify_flutter.dart'; // import this
+import 'package:amplify_flutter/amplify_flutter.dart';
 
 class UserMainScreen extends StatefulWidget {
   final int selectedIndex;
@@ -32,10 +32,7 @@ class _UserMainScreenState extends State<UserMainScreen> {
         _isMember = session.isSignedIn;
       });
     } catch (e) {
-      // Optional: handle error
-      setState(() {
-        _isMember = false;
-      });
+      setState(() => _isMember = false);
     }
   }
 
@@ -47,38 +44,60 @@ class _UserMainScreenState extends State<UserMainScreen> {
 
   List<Widget> get _screens {
     return [
-      UserHomeScreen(isMember: _isMember, onNavigateTab: _changeTab),
+      UserHomeScreen(
+        isMember: _isMember,
+        userName: "User",
+        onNavigateTab: _changeTab,
+      ),
       const ReportTab(),
       const TrackTab(),
       ProfileTab(),
     ];
   }
 
-  void _onTabTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
+    const Color selectedColor = Colors.red;
+    const Color unselectedColor = Color.fromARGB(255, 128, 48, 48);
+
     return Scaffold(
       body: _screens[_selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onTabTapped,
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: Color(0xFFFF5722),
-        backgroundColor: Colors.white,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.report), label: 'Report'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.track_changes),
-            label: 'Track',
-          ),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
-        ],
+      bottomNavigationBar: NavigationBarTheme(
+        data: NavigationBarThemeData(
+          backgroundColor: Colors.transparent,
+          surfaceTintColor: Colors.transparent,
+          indicatorColor: Colors.transparent, // no background highlight
+          labelTextStyle: MaterialStateProperty.resolveWith<TextStyle>((
+            states,
+          ) {
+            if (states.contains(MaterialState.selected)) {
+              return TextStyle(color: selectedColor); // removed const
+            }
+            return TextStyle(color: unselectedColor); // removed const
+          }),
+          iconTheme: MaterialStateProperty.resolveWith<IconThemeData>((states) {
+            if (states.contains(MaterialState.selected)) {
+              return IconThemeData(color: selectedColor); // removed const
+            }
+            return IconThemeData(color: unselectedColor); // removed const
+          }),
+        ),
+        child: NavigationBar(
+          selectedIndex: _selectedIndex,
+          onDestinationSelected: _changeTab,
+          destinations: const [
+            NavigationDestination(icon: Icon(Icons.home), label: "Home"),
+            NavigationDestination(
+              icon: Icon(Icons.add_box_outlined),
+              label: "Report",
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.track_changes),
+              label: "Track",
+            ),
+            NavigationDestination(icon: Icon(Icons.person), label: "Profile"),
+          ],
+        ),
       ),
     );
   }

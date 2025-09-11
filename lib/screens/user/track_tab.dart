@@ -1,22 +1,22 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:amplify_flutter/amplify_flutter.dart';
 
 class TrackTab extends StatefulWidget {
   final String? caseId;
-
   const TrackTab({super.key, this.caseId});
 
   @override
-  State<TrackTab> createState() => _CaseTrackerScreenState();
+  State<TrackTab> createState() => _TrackTabState();
 }
 
-class _CaseTrackerScreenState extends State<TrackTab> {
+class _TrackTabState extends State<TrackTab> {
   final TextEditingController _caseIdController = TextEditingController();
   bool _loading = false;
   Map<String, dynamic>? _caseData;
   String? _errorMessage;
+
+  final Color primaryRed = const Color(0xFFEC1337);
+  final Color textAccent = const Color(0xFF9A4C59);
+  final Color backgroundPink = const Color(0xFFFCF8F9);
 
   @override
   void initState() {
@@ -43,175 +43,180 @@ class _CaseTrackerScreenState extends State<TrackTab> {
       _caseData = null;
     });
 
-    try {
-      // GraphQL query to fetch report by caseId
-      // Note: Replace 'listReports' or 'getReportByCaseId' with your actual query name
-      const query = '''
-        query GetReportByCaseId(\$caseId: String!) {
-          listReports(filter: { caseId: { eq: \$caseId } }) {
-            items {
-              id
-              caseId
-              title
-              description
-              location
-              createdAt
-            }
-          }
-        }
-      ''';
+    await Future.delayed(const Duration(seconds: 1)); // simulate delay
 
-      final variables = {'caseId': caseId};
+    // Dummy UI-only data
+    final dummyData = {
+      'caseId': caseId,
+      'title': 'Street Light Not Working',
+      'note':
+          'The street light near the main road is not functioning properly.',
+      'location': 'Main Street, City Center',
+      'date': '2025-09-11',
+      'status': 'Pending',
+    };
 
-      final request = GraphQLRequest<String>(
-        document: query,
-        variables: variables,
-      );
-
-      final response = await Amplify.API.query(request: request).response;
-
-      if (response.errors.isNotEmpty) {
-        setState(() {
-          _errorMessage =
-              'Error fetching case details: ${response.errors.first.message}';
-          _loading = false;
-        });
-        return;
-      }
-
-      final data = response.data;
-      if (data == null) {
-        setState(() {
-          _errorMessage = 'No data returned from server';
-          _loading = false;
-        });
-        return;
-      }
-
-      // Parse JSON string into Map
-      final Map<String, dynamic> jsonData = await parseJson(data);
-
-      final items = jsonData['listReports']['items'] as List<dynamic>;
-
-      if (items.isEmpty) {
-        setState(() {
-          _errorMessage = 'No case found for Case ID: $caseId';
-          _loading = false;
-          _caseData = null;
-        });
-        return;
-      }
-
-      final caseItem = items.first as Map<String, dynamic>;
-
-      setState(() {
-        _caseData = {
-          'location': caseItem['location'] ?? '',
-          'note': caseItem['description'] ?? '',
-          'date': caseItem['createdAt']?.substring(0, 10) ?? '',
-          'status':
-              'In Progress', // you can extend your schema to include status
-          'volunteer': null,
-          'imageUrl': null,
-          'title': caseItem['title'] ?? '',
-        };
-        _loading = false;
-        _errorMessage = null;
-      });
-    } catch (e) {
-      setState(() {
-        _errorMessage = 'Failed to fetch case details. Please try again.';
-        _loading = false;
-      });
-      debugPrint('Error fetching case details: $e');
-    }
-  }
-
-  // Helper method to parse JSON string safely
-  Future<Map<String, dynamic>> parseJson(String data) async {
-    return Future.microtask(
-      () => data.isNotEmpty ? Map<String, dynamic>.from(jsonDecode(data)) : {},
-    );
+    setState(() {
+      _caseData = dummyData;
+      _loading = false;
+      _errorMessage = null;
+    });
   }
 
   Widget _buildCaseCard(Map<String, dynamic> data) {
     return Card(
-      elevation: 4,
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+      elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      color: Colors.white,
       child: Padding(
         padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Row(
           children: [
-            Text(
-              data['title'] ?? 'Case Details',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: 12),
-            _buildRow('Location', data['location']),
-            _buildRow('Note', data['note']),
-            _buildRow('Date', data['date']),
-            _buildRow('Status', data['status']),
-            if (data['volunteer'] != null)
-              _buildRow('Assigned Volunteer', data['volunteer']),
-            const SizedBox(height: 12),
-            if (data['imageUrl'] != null)
-              ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Image.network(
-                  data['imageUrl'],
-                  height: 180,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                ),
+            // Case details
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Case ID: ${data['caseId']}',
+                    style: TextStyle(color: textAccent, fontSize: 14),
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      const Text(
+                        'Status: ',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: primaryRed,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          data['status'],
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Reported on: ${data['date']}',
+                    style: TextStyle(color: textAccent, fontSize: 12),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    data['title'] ?? '',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(data['note'] ?? '', style: TextStyle(color: textAccent)),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Location: ${data['location'] ?? ''}',
+                    style: TextStyle(color: textAccent),
+                  ),
+                ],
               ),
+            ),
+            const SizedBox(width: 12),
+            // Replace image with icon
+            const Icon(Icons.report, size: 50, color: Colors.grey),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('$label: ', style: const TextStyle(fontWeight: FontWeight.bold)),
-          Expanded(child: Text(value)),
-        ],
-      ),
+  Widget _buildNavItem(String label, IconData icon, bool active) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, color: active ? primaryRed : textAccent),
+        Text(
+          label,
+          style: TextStyle(
+            color: active ? primaryRed : textAccent,
+            fontWeight: active ? FontWeight.bold : FontWeight.normal,
+            fontSize: 12,
+          ),
+        ),
+      ],
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: backgroundPink,
       appBar: AppBar(
-        title: const Text('Track Your Case'),
-        backgroundColor: const Color(0xFFFFCCBC),
+        backgroundColor: backgroundPink,
+        elevation: 0,
+        centerTitle: true,
+        title: const Text(
+          'Track Case ID',
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+        ),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            TextField(
-              controller: _caseIdController,
-              decoration: InputDecoration(
-                labelText: 'Enter Case ID',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+            // Input row
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _caseIdController,
+                    decoration: InputDecoration(
+                      hintText: 'Enter Case ID',
+                      filled: true,
+                      fillColor: Colors.white,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                  ),
                 ),
-                suffixIcon: IconButton(
-                  icon: const Icon(Icons.search),
+                const SizedBox(width: 12),
+                ElevatedButton(
                   onPressed: _fetchCaseDetails,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryRed,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 16,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  child: const Text(
+                    'Track',
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
-              ),
+              ],
             ),
             const SizedBox(height: 20),
+            // Results
             if (_loading)
-              const CircularProgressIndicator()
+              const Center(child: CircularProgressIndicator())
             else if (_errorMessage != null)
               Text(_errorMessage!, style: const TextStyle(color: Colors.red))
             else if (_caseData != null)

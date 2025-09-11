@@ -36,6 +36,7 @@ dependencies:
   amplify_api: ^2.6.5
   amplify_datastore: ^2.6.6
   amplify_api_dart: ^0.5.11
+  aws_common: ^0.7.10
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -45,6 +46,7 @@ dependencies:
   permission_handler: ^12.0.0+1
   uuid: ^4.5.1
   share_plus: ^11.0.0
+  dotted_border: ^2.0.0
 
 dev_dependencies:
   flutter_test:

@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:helpnow_mobileapp/screens/user/about_screen.dart';
 import 'package:helpnow_mobileapp/screens/user/contactUs_screen.dart';
 import 'package:helpnow_mobileapp/screens/user/privacy_policy_screen.dart';
 import 'package:helpnow_mobileapp/screens/user/setting_Screen.dart';
 import 'package:helpnow_mobileapp/screens/user/user_login_screen.dart';
-import 'package:helpnow_mobileapp/screens/user/user_main_screen.dart';
 import 'package:helpnow_mobileapp/screens/welcome_screen.dart';
 import 'package:helpnow_mobileapp/services/amplify_service.dart';
+import 'package:amplify_flutter/amplify_flutter.dart';
 
 class ProfileTab extends StatefulWidget {
   const ProfileTab({super.key});
@@ -63,109 +62,137 @@ class _ProfileTabState extends State<ProfileTab> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFfcf8f9),
       appBar: AppBar(
-        title: const Text('My Profile'),
-        backgroundColor: const Color(0xFFFFCCBC),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: const Text(
+          'Profile',
+          style: TextStyle(
+            color: Color(0xFF1b0d10),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(
+              Icons.settings,
+              color: Color(0xFF1b0d10),
+              size: 28,
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const SettingsScreen()),
+              );
+            },
+          ),
+        ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: ListView(
-          children: [
-            Center(
-              child: Column(
-                children: [
-                  CircleAvatar(
-                    radius: 50,
-                    backgroundImage: isMember
-                        ? const NetworkImage('https://via.placeholder.com/150')
-                        : null,
-                    child: !isMember
-                        ? const Icon(Icons.person, size: 50)
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          // Profile Image & Info
+          Center(
+            child: Column(
+              children: [
+                Container(
+                  width: 128,
+                  height: 128,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black12,
+                        blurRadius: 10,
+                        offset: Offset(0, 5),
+                      ),
+                    ],
+                    image: isMember
+                        ? const DecorationImage(
+                            image: AssetImage('assets/profile_sample.jpg'),
+                            fit: BoxFit.cover,
+                          )
                         : null,
                   ),
-                  const SizedBox(height: 10),
-                  Text(
-                    isMember ? 'John Doe' : 'Guest User',
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  child: !isMember
+                      ? const Icon(Icons.person, size: 64, color: Colors.grey)
+                      : null,
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  isMember ? 'Sophia Carter' : 'Guest User',
+                  style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF1b0d10),
                   ),
-                  if (isMember && email != null)
-                    Text(
-                      email!,
-                      style: const TextStyle(fontSize: 16, color: Colors.grey),
-                    ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 30),
-
-            _buildCardTile(
-              context,
-              icon: Icons.info,
-              text: 'About Us',
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const AboutUsScreen()),
-              ),
-            ),
-            _buildCardTile(
-              context,
-              icon: Icons.contact_mail,
-              text: 'Contact Us',
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const ContactUsScreen()),
-              ),
-            ),
-            _buildCardTile(
-              context,
-              icon: Icons.privacy_tip,
-              text: 'Privacy Policy',
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const PrivacyPolicyScreen()),
-              ),
-            ),
-
-            if (isMember)
-              _buildCardTile(
-                context,
-                icon: Icons.settings,
-                text: 'Settings',
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const SettingsScreen()),
                 ),
-              ),
-
-            const Divider(),
-
-            if (!isMember)
-              _buildCardTile(
-                context,
-                icon: Icons.person_add,
-                text: 'Create Account',
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const LoginScreen()),
+                Text(
+                  isMember ? 'Volunteer' : '',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: Color(0xFF9a4c59),
+                  ),
                 ),
-              ),
-
-            if (isMember)
-              _buildCardTile(
-                context,
-                icon: Icons.logout,
-                text: 'Logout',
-                onTap: () async {
+                Text(
+                  isMember ? 'Joined 2022' : '',
+                  style: const TextStyle(fontSize: 14, color: Colors.grey),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+          // Stats Cards
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _buildStatCard('120', 'Points'),
+              _buildStatCard('5', 'Badges'),
+              _buildStatCard('3', 'Certificates'),
+            ],
+          ),
+          const SizedBox(height: 20),
+          // Account Section
+          const Text(
+            'Account',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF1b0d10),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Card(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            elevation: 2,
+            child: Column(
+              children: [
+                _buildAccountTile('Edit Profile', Icons.edit, () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const AboutUsScreen()),
+                  );
+                }),
+                const Divider(height: 1),
+                _buildAccountTile('Preferences', Icons.settings, () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                  );
+                }),
+                const Divider(height: 1),
+                _buildAccountTile('Logout', Icons.logout, () async {
+                  if (!isMember) return;
                   try {
                     await _amplifyService.signOut();
-
-                    // After successful sign out, navigate to WelcomeScreen
                     Navigator.of(context).pushAndRemoveUntil(
                       MaterialPageRoute(builder: (_) => const WelcomeScreen()),
-                      (route) => false, // This clears the backstack
+                      (route) => false,
                     );
                   } catch (e) {
                     if (context.mounted) {
@@ -174,30 +201,62 @@ class _ProfileTabState extends State<ProfileTab> {
                       );
                     }
                   }
-                },
+                }, iconColor: const Color(0xFF8c1c34)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatCard(String value, String label) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: const [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 5,
+              offset: Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            Text(
+              value,
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF8c1c34),
               ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: const TextStyle(fontSize: 14, color: Colors.grey),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildCardTile(
-    BuildContext context, {
-    required IconData icon,
-    required String text,
-    required VoidCallback onTap,
+  Widget _buildAccountTile(
+    String text,
+    IconData icon,
+    VoidCallback onTap, {
+    Color iconColor = Colors.deepOrangeAccent,
   }) {
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      elevation: 2,
-      child: ListTile(
-        leading: Icon(icon, color: Colors.deepOrangeAccent),
-        title: Text(text),
-        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-        onTap: onTap,
-      ),
+    return ListTile(
+      leading: Icon(icon, color: iconColor),
+      title: Text(text),
+      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+      onTap: onTap,
     );
   }
 }
