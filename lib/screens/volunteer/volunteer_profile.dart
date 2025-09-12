@@ -81,6 +81,34 @@ class _VolunteerProfileState extends State<VolunteerProfile> {
     );
   }
 
+  // Function to show confirmation dialog when saving changes
+  Future<void> _showConfirmationDialog() async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Confirm Changes"),
+          content: Text("Are you sure you want to save the changes?"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // Close the dialog
+              },
+              child: Text("No"),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // Close the dialog
+                _saveProfileChanges(); // Proceed to save changes
+              },
+              child: Text("Yes"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -143,10 +171,7 @@ class _VolunteerProfileState extends State<VolunteerProfile> {
 
               // Save Button
               ElevatedButton(
-                onPressed: () {
-                  // Save profile changes logic
-                  _saveProfileChanges();
-                },
+                onPressed: _showConfirmationDialog, // Show confirmation dialog
                 child: Text('Save Changes'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color.fromARGB(255, 24, 167, 43),

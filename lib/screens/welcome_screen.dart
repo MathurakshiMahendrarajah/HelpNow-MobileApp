@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:helpnow_mobileapp/screens/role_selection_screen.dart';
+import 'package:helpnow_mobileapp/screens/user/user_login_screen.dart';
 import 'package:helpnow_mobileapp/screens/user/user_main_screen.dart';
 import 'package:helpnow_mobileapp/screens/ngo/ngo_login_screen.dart';
 import 'package:helpnow_mobileapp/screens/volunteer/volunteer_login_screen.dart';
@@ -14,6 +15,8 @@ class WelcomeScreen extends StatefulWidget {
 }
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
+
+  
   @override
   void initState() {
     super.initState();
@@ -59,6 +62,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+
+    const primaryRed = Color(0xFFEC1337);
+    const secondaryMaroon = Color(0xFF9A4C59);
+    const backgroundPink = Color(0xFFFCF8F9);
     return Scaffold(
       body: Stack(
         children: [
@@ -102,15 +109,30 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     icon: Icons.volunteer_activism,
                     title: 'Get Help',
                     subtitle: 'Report a case or track your request.',
-                    color: const Color(0xFFFF7043),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) =>
-                              const UserMainScreen(selectedIndex: 0),
-                        ),
-                      );
+                    color: primaryRed,
+                    onPressed: () async {
+                      try {
+                        final user = await Amplify.Auth.getCurrentUser();
+
+                        if (user != null) {
+                          // If signed in, go to home tab
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  const UserMainScreen(selectedIndex: 0),
+                            ),
+                          );
+                        }
+                      } on AuthException {
+                        // If not signed in, go to user login
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const LoginScreen(),
+                          ),
+                        );
+                      }
                     },
                   ),
                   const SizedBox(height: 20),
@@ -121,7 +143,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     icon: Icons.login,
                     title: 'Login as NGO/Volunteer',
                     subtitle: 'Access dashboard and manage help requests.',
-                    color: const Color(0xFF2E7D32),
+                    color: primaryRed,
                     onPressed: () {
                       Navigator.push(
                         context,
