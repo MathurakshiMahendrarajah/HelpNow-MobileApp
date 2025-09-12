@@ -10,67 +10,103 @@ class _CaseDashboardScreenState extends State<CaseDashboardScreen> {
   final List<Map<String, dynamic>> cases = [
     {
       "Case Id": "HN1001",
-      "title": "Food Assistance",
-      "category": "Food Need",
-      "location": "Colombo",
+      "title": "Ramesh Perera",
+      "category": "Food",
+      "location": "Wellawatte, Colombo",
       "status": "Pending",
       "assignedVolunteers": [],
-      "description": "Food packets required for 50 families",
+      "description": "Family struggling to afford daily meals due to unemployment.",
       "image": "https://via.placeholder.com/400x200.png?text=Food+Case"
     },
     {
       "Case Id": "HN1002",
-      "title": "Medical Help for Elderly",
-      "category": "Medical",
-      "location": "Kandy",
-      "status": "In Progress",
-      "assignedVolunteers": [
-        {
-          "id": "V1002",
-          "name": "Bob Smith",
-          "category": "Medical",
-          "rating": 4.8,
-          "image": "https://i.pravatar.cc/150?img=2"
-        }
-      ],
-      "description": "Elderly patients need medicines and checkup",
-      "image": "https://via.placeholder.com/400x200.png?text=Medical+Case"
+      "title": "Nirosha Silva",
+      "category": "Education",
+      "location": "Dehiwala, Colombo",
+      "status": "Pending",
+      "assignedVolunteers": [],
+      "description": "Single mother needs support to buy school books for two children.",
+      "image": "https://via.placeholder.com/400x200.png?text=Education+Case"
     },
     {
       "Case Id": "HN1003",
-      "title": "School Supplies for Children",
-      "category": "Education",
-      "location": "Galle",
-      "status": "Assigned",
-      "assignedVolunteers": [
-        {
-          "id": "V1004",
-          "name": "Diana Prince",
-          "category": "Education",
-          "rating": 4.6,
-          "image": "https://i.pravatar.cc/150?img=4"
-        }
-      ],
-      "description": "Stationery required for 100 students",
-      "image": "https://via.placeholder.com/400x200.png?text=School+Supplies"
+      "title": "Kamal Fernando",
+      "category": "Health",
+      "location": "Borella, Colombo",
+      "status": "Pending",
+      "assignedVolunteers": [],
+      "description": "Elderly couple in need of medical assistance and medicines.",
+      "image": "https://via.placeholder.com/400x200.png?text=Health+Case"
     },
     {
       "Case Id": "HN1004",
-      "title": "Flood Relief",
-      "category": "Disaster",
-      "location": "Matara",
+      "title": "Shanika Jayawardena",
+      "category": "Education",
+      "location": "Nugegoda, Colombo",
+      "status": "In Progress",
+      "assignedVolunteers": [],
+      "description": "Student requires laptop for online university studies.",
+      "image": "https://via.placeholder.com/400x200.png?text=Education+Case"
+    },
+    {
+      "Case Id": "HN1005",
+      "title": "Mohamed Rizwan",
+      "category": "Food",
+      "location": "Pettah, Colombo",
+      "status": "In Progress",
+      "assignedVolunteers": [],
+      "description": "Small business owner seeks food packages for flood-affected workers.",
+      "image": "https://via.placeholder.com/400x200.png?text=Food+Case"
+    },
+    {
+      "Case Id": "HN1006",
+      "title": "Dilini Wickramasinghe",
+      "category": "Shelter",
+      "location": "Mount Lavinia, Colombo",
+      "status": "Assigned",
+      "assignedVolunteers": [],
+      "description": "Family needs temporary shelter after house fire.",
+      "image": "https://via.placeholder.com/400x200.png?text=Shelter+Case"
+    },
+    {
+      "Case Id": "HN1007",
+      "title": "Suresh Kumar",
+      "category": "Financial",
+      "location": "Kirulapone, Colombo",
+      "status": "Assigned",
+      "assignedVolunteers": [],
+      "description": "Needs assistance with monthly rent as job was lost recently.",
+      "image": "https://via.placeholder.com/400x200.png?text=Financial+Case"
+    },
+    {
+      "Case Id": "HN1008",
+      "title": "Tharushi Gunawardena",
+      "category": "Education",
+      "location": "Kolonnawa, Colombo",
       "status": "Completed",
-      "assignedVolunteers": [
-        {
-          "id": "V1003",
-          "name": "Charlie Lee",
-          "category": "Disaster",
-          "rating": 4.2,
-          "image": "https://i.pravatar.cc/150?img=3"
-        }
-      ],
-      "description": "Flooded homes have been provided blankets and water",
-      "image": "https://via.placeholder.com/400x200.png?text=Flood+Relief"
+      "assignedVolunteers": [],
+      "description": "Needs books and uniforms for children starting school.",
+      "image": "https://via.placeholder.com/400x200.png?text=Education+Case"
+    },
+    {
+      "Case Id": "HN1009",
+      "title": "Janaka Abeywardena",
+      "category": "Food",
+      "location": "Malabe, Colombo",
+      "status": "Completed",
+      "assignedVolunteers": [],
+      "description": "Community requests dry rations for 15 displaced families.",
+      "image": "https://via.placeholder.com/400x200.png?text=Food+Case"
+    },
+    {
+      "Case Id": "HN1010",
+      "title": "Shalini Peris",
+      "category": "Health",
+      "location": "Battaramulla, Colombo",
+      "status": "Completed",
+      "assignedVolunteers": [],
+      "description": "Patient requires transport support for regular hospital visits.",
+      "image": "https://via.placeholder.com/400x200.png?text=Health+Case"
     },
   ];
 
@@ -80,7 +116,7 @@ class _CaseDashboardScreenState extends State<CaseDashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 5, // Added Completed tab
+      length: 5,
       child: Scaffold(
         backgroundColor: backgroundPink,
         appBar: AppBar(
@@ -92,7 +128,7 @@ class _CaseDashboardScreenState extends State<CaseDashboardScreen> {
               Tab(text: "Assigned"),
               Tab(text: "In Progress"),
               Tab(text: "Pending"),
-              Tab(text: "Completed"), // New tab
+              Tab(text: "Completed"),
             ],
           ),
         ),
@@ -108,7 +144,7 @@ class _CaseDashboardScreenState extends State<CaseDashboardScreen> {
                 (c['assignedVolunteers'] != null && c['assignedVolunteers'].isNotEmpty)
             ).toList()),
             buildCaseList(cases.where((c) => c['status'] == "Pending").toList()),
-            buildCaseList(cases.where((c) => c['status'] == "Completed").toList()), // Completed tab
+            buildCaseList(cases.where((c) => c['status'] == "Completed").toList()),
           ],
         ),
       ),
@@ -153,7 +189,7 @@ class _CaseDashboardScreenState extends State<CaseDashboardScreen> {
                         ? Colors.blue
                         : c['status'] == "Assigned"
                             ? Colors.purple
-                            : Colors.green, // Completed is green
+                            : Colors.green,
               ),
             ),
             onTap: () async {
@@ -161,7 +197,7 @@ class _CaseDashboardScreenState extends State<CaseDashboardScreen> {
                 context,
                 MaterialPageRoute(builder: (_) => CaseDetailScreen(caseData: c)),
               );
-              setState(() {}); // Refresh after returning from detail
+              setState(() {});
             },
           ),
         );
