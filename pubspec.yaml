@@ -47,6 +47,7 @@ dependencies:
   uuid: ^4.5.1
   share_plus: ^11.0.0
   dotted_border: ^2.0.0
+  dropdown_button2: ^1.9.0
 
 dev_dependencies:
   flutter_test:

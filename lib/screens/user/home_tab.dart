@@ -43,7 +43,7 @@ class UserHomeScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "Hi, $userName 👋",
+              "Hi, Dilini 👋",
               style: const TextStyle(
                 fontSize: 26,
                 fontWeight: FontWeight.bold,
@@ -126,15 +126,21 @@ class UserHomeScreen extends StatelessWidget {
             const SizedBox(height: 12),
 
             _buildCaseCard(
-              caseId: "12345",
-              title: "Food Assistance",
+              caseId: "RPT-1757689333816",
+              location: "Kolonnawa, Colombo",
+              description:
+                  "Needs books and uniforms for children starting school.",
+              typeOfNeed: "Education",
               status: "In Progress",
-              statusColor: Colors.yellow,
+              statusColor: Colors.blue,
             ),
             const SizedBox(height: 12),
             _buildCaseCard(
-              caseId: "67890",
-              title: "Medical Aid",
+              caseId: "RPT-1757689192819",
+              location: "Malabe, Colombo",
+              description:
+                  "Community requests dry rations for 15 displaced families.",
+              typeOfNeed: "Food",
               status: "Pending Review",
               statusColor: Colors.orange,
             ),
@@ -192,7 +198,9 @@ class UserHomeScreen extends StatelessWidget {
 
   Widget _buildCaseCard({
     required String caseId,
-    required String title,
+    required String location,
+    required String description,
+    required String typeOfNeed,
     required String status,
     required Color statusColor,
   }) {
@@ -203,7 +211,9 @@ class UserHomeScreen extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Icon box
             Container(
               width: 80,
               height: 80,
@@ -214,12 +224,14 @@ class UserHomeScreen extends StatelessWidget {
               child: Icon(Icons.help, color: statusColor, size: 40),
             ),
             const SizedBox(width: 12),
+
+            // Details
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Case #$caseId",
+                    "Case ID: $caseId",
                     style: const TextStyle(
                       fontSize: 12,
                       color: Color(0xFF9A4C59),
@@ -227,11 +239,13 @@ class UserHomeScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    "Location: $location",
+                    style: const TextStyle(fontSize: 13, color: Colors.black87),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    "Description: $description",
+                    style: const TextStyle(fontSize: 13, color: Colors.black54),
                   ),
                   const SizedBox(height: 6),
                   Row(
@@ -239,13 +253,22 @@ class UserHomeScreen extends StatelessWidget {
                       CircleAvatar(radius: 4, backgroundColor: statusColor),
                       const SizedBox(width: 6),
                       Text(
-                        "Status: $status",
+                        "Type of Need: $typeOfNeed",
                         style: const TextStyle(
                           fontSize: 12,
                           color: Color(0xFF9A4C59),
                         ),
                       ),
                     ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    "Status: $status",
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: statusColor,
+                    ),
                   ),
                 ],
               ),
