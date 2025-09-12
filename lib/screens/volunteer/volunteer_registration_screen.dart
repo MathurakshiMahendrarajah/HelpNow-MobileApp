@@ -16,15 +16,16 @@ class _VolunteerRegistrationScreenState
   final TextEditingController addressController = TextEditingController();
   final TextEditingController dobController = TextEditingController();
   final TextEditingController skillsController = TextEditingController();
-  final TextEditingController availabilityController = TextEditingController();
-  final TextEditingController genderController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController =
       TextEditingController();
 
   bool agreementChecked = false; // Agreement checkbox state
-
   int currentPage = 0; // Track current page
+
+  // Availability and Gender selections
+  String? selectedAvailability;
+  String? selectedGender;
 
   // Color constants for theme
   static const primaryRed = Color(0xFFEC1337);
@@ -33,6 +34,14 @@ class _VolunteerRegistrationScreenState
 
   late AnimationController _controller;
   late Animation<Offset> _slideAnimation;
+
+  final List<String> availabilityOptions = [
+    'Weekdays', // Option for weekdays
+    'Weekends', // Option for weekends
+    'All Days', // Option for all days
+  ];
+
+  final List<String> genderOptions = ['Male', 'Female', 'Other'];
 
   @override
   void initState() {
@@ -278,28 +287,33 @@ class _VolunteerRegistrationScreenState
   Widget buildSkillsAndAvailabilityStep() {
     return Column(
       children: [
-        buildInputField(
-          controller: dobController,
+        buildDatePickerField(
           label: 'Date of Birth',
           icon: Icons.calendar_today,
         ),
         const SizedBox(height: 16),
-        buildInputField(
-          controller: skillsController,
-          label: 'Skills/Expertise',
-          icon: Icons.build,
-        ),
-        const SizedBox(height: 16),
-        buildInputField(
-          controller: availabilityController,
+        buildDropdownField(
           label: 'Availability',
           icon: Icons.access_time,
+          value: selectedAvailability,
+          onChanged: (String? newValue) {
+            setState(() {
+              selectedAvailability = newValue;
+            });
+          },
+          items: availabilityOptions,
         ),
         const SizedBox(height: 16),
-        buildInputField(
-          controller: genderController,
+        buildDropdownField(
           label: 'Gender',
           icon: Icons.person_outline,
+          value: selectedGender,
+          onChanged: (String? newValue) {
+            setState(() {
+              selectedGender = newValue;
+            });
+          },
+          items: genderOptions,
         ),
       ],
     );
@@ -338,6 +352,59 @@ class _VolunteerRegistrationScreenState
           ],
         ),
       ],
+    );
+  }
+
+  // DatePicker for Date of Birth
+  Widget buildDatePickerField({required String label, required IconData icon}) {
+    return TextField(
+      controller: dobController,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(icon),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+        filled: true,
+        fillColor: Colors.grey[100],
+      ),
+      readOnly: true,
+      onTap: () async {
+        DateTime? pickedDate = await showDatePicker(
+          context: context,
+          initialDate: DateTime.now(),
+          firstDate: DateTime(1900),
+          lastDate: DateTime.now(),
+        );
+        if (pickedDate != null) {
+          setState(() {
+            dobController.text =
+                "${pickedDate.day}/${pickedDate.month}/${pickedDate.year}";
+          });
+        }
+      },
+    );
+  }
+
+  // Dropdown for Gender and Availability
+  Widget buildDropdownField({
+    required String label,
+    required IconData icon,
+    required String? value,
+    required Function(String?) onChanged,
+    required List<String> items,
+  }) {
+    return DropdownButtonFormField<String>(
+      value: value,
+      onChanged: onChanged,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(icon),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+        filled: true,
+        fillColor: Colors.grey[100],
+      ),
+      items: items.map((String item) {
+        return DropdownMenuItem<String>(value: item, child: Text(item));
+      }).toList(),
     );
   }
 
