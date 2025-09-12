@@ -109,7 +109,9 @@ class _VolunteerMainScreenState extends State<VolunteerMainScreen> {
                       ),
                       SizedBox(height: 5),
                       Text(
-                        'Welcome back to the Volunteer Dashboard!',
+                        _currentIndex == 1
+                            ? 'Welcome to Profile!'
+                            : 'Welcome back to the Volunteer Dashboard!',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.normal,

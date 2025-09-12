@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:helpnow_mobileapp/screens/volunteer/volunteer_main_screen.dart'; // Import Volunteer Main Screen
+import 'package:helpnow_mobileapp/screens/volunteer/volunteer_main_screen.dart';
+import 'package:image_picker/image_picker.dart'; // To pick images
 
 class VolunteerRegistrationScreen extends StatefulWidget {
   @override
@@ -20,14 +21,13 @@ class _VolunteerRegistrationScreenState
   final TextEditingController confirmPasswordController =
       TextEditingController();
 
-  bool agreementChecked = false; // Agreement checkbox state
-  int currentPage = 0; // Track current page
+  bool agreementChecked = false;
+  int currentPage = 0;
 
-  // Availability and Gender selections
   String? selectedAvailability;
   String? selectedGender;
+  String? selectedLanguage;
 
-  // Color constants for theme
   static const primaryRed = Color(0xFFEC1337);
   static const secondaryMaroon = Color(0xFF9A4C59);
   static const backgroundPink = Color(0xFFFCF8F9);
@@ -35,13 +35,11 @@ class _VolunteerRegistrationScreenState
   late AnimationController _controller;
   late Animation<Offset> _slideAnimation;
 
-  final List<String> availabilityOptions = [
-    'Weekdays', // Option for weekdays
-    'Weekends', // Option for weekends
-    'All Days', // Option for all days
-  ];
+  final List<String> availabilityOptions = ['Weekdays', 'Weekends', 'All Days'];
 
   final List<String> genderOptions = ['Male', 'Female', 'Other'];
+
+  final List<String> languageOptions = ['English', 'Tamil', 'Sinhala', 'Other'];
 
   @override
   void initState() {
@@ -82,7 +80,6 @@ class _VolunteerRegistrationScreenState
               padding: const EdgeInsets.all(24),
               child: Column(
                 children: [
-                  // Reusing the animated handshake icon
                   AnimatedBuilder(
                     animation: _controller,
                     builder: (context, child) {
@@ -123,19 +120,16 @@ class _VolunteerRegistrationScreenState
                           padding: const EdgeInsets.all(20.0),
                           child: Column(
                             children: [
-                              // Display form steps based on currentPage
                               currentPage == 0
                                   ? buildPersonalInfoStep()
                                   : currentPage == 1
                                   ? buildSkillsAndAvailabilityStep()
                                   : buildAccountInfoStep(),
                               const SizedBox(height: 24),
-                              // Side arrows for navigation
                               Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  // Left Arrow for previous page
                                   currentPage > 0
                                       ? GestureDetector(
                                           onTap: _previousPage,
@@ -143,13 +137,12 @@ class _VolunteerRegistrationScreenState
                                             position: _slideAnimation,
                                             child: Icon(
                                               Icons.arrow_back_ios,
-                                              size: 40, // Smaller size
+                                              size: 40,
                                               color: primaryRed,
                                             ),
                                           ),
                                         )
                                       : Container(),
-                                  // Right Arrow for next page
                                   currentPage < 2
                                       ? GestureDetector(
                                           onTap: _nextPage,
@@ -157,7 +150,7 @@ class _VolunteerRegistrationScreenState
                                             position: _slideAnimation,
                                             child: Icon(
                                               Icons.arrow_forward_ios,
-                                              size: 40, // Smaller size
+                                              size: 40,
                                               color: primaryRed,
                                             ),
                                           ),
@@ -166,14 +159,12 @@ class _VolunteerRegistrationScreenState
                                 ],
                               ),
                               const SizedBox(height: 24),
-                              // Register Button
                               currentPage == 2
                                   ? ElevatedButton(
                                       onPressed: () {
                                         if (passwordController.text ==
                                             confirmPasswordController.text) {
                                           if (agreementChecked) {
-                                            // Register the user logic here
                                             Navigator.push(
                                               context,
                                               MaterialPageRoute(
@@ -182,7 +173,6 @@ class _VolunteerRegistrationScreenState
                                               ),
                                             );
                                           } else {
-                                            // Show an error if agreement is not checked
                                             showDialog(
                                               context: context,
                                               builder: (context) => AlertDialog(
@@ -202,7 +192,6 @@ class _VolunteerRegistrationScreenState
                                             );
                                           }
                                         } else {
-                                          // Show an error if passwords don't match
                                           showDialog(
                                             context: context,
                                             builder: (context) => AlertDialog(
@@ -315,6 +304,18 @@ class _VolunteerRegistrationScreenState
           },
           items: genderOptions,
         ),
+        const SizedBox(height: 16),
+        buildDropdownField(
+          label: 'Languages Spoken',
+          icon: Icons.language,
+          value: selectedLanguage,
+          onChanged: (String? newValue) {
+            setState(() {
+              selectedLanguage = newValue;
+            });
+          },
+          items: languageOptions,
+        ),
       ],
     );
   }
@@ -337,7 +338,6 @@ class _VolunteerRegistrationScreenState
           obscureText: true,
         ),
         const SizedBox(height: 16),
-        // Agreement/Consent Checkbox
         Row(
           children: [
             Checkbox(
@@ -384,7 +384,7 @@ class _VolunteerRegistrationScreenState
     );
   }
 
-  // Dropdown for Gender and Availability
+  // Dropdown for Gender, Availability, and Language
   Widget buildDropdownField({
     required String label,
     required IconData icon,
@@ -408,24 +408,6 @@ class _VolunteerRegistrationScreenState
     );
   }
 
-  // Navigation to the next page
-  void _nextPage() {
-    if (currentPage < 2) {
-      setState(() {
-        currentPage++;
-      });
-    }
-  }
-
-  // Navigation to the previous page
-  void _previousPage() {
-    if (currentPage > 0) {
-      setState(() {
-        currentPage--;
-      });
-    }
-  }
-
   // Reusable input field
   Widget buildInputField({
     required TextEditingController controller,
@@ -444,5 +426,23 @@ class _VolunteerRegistrationScreenState
         fillColor: Colors.grey[100],
       ),
     );
+  }
+
+  // Navigation to the next page
+  void _nextPage() {
+    if (currentPage < 2) {
+      setState(() {
+        currentPage++;
+      });
+    }
+  }
+
+  // Navigation to the previous page
+  void _previousPage() {
+    if (currentPage > 0) {
+      setState(() {
+        currentPage--;
+      });
+    }
   }
 }
