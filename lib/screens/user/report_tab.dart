@@ -26,6 +26,7 @@ class _ReportTabState extends State<ReportTab> {
   bool _isSubmitting = false;
   bool _isSubmitted = false;
   String? _caseId;
+  String? _selectedCaseType;
 
   // Theme colors
   final Color primaryColor = const Color(0xFFEC1337);
@@ -67,36 +68,55 @@ class _ReportTabState extends State<ReportTab> {
   Future<void> _submitReport() async {
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() {
-      _isSubmitting = true;
-    });
+    setState(() => _isSubmitting = true);
 
     try {
-      // Generate Case ID
       final caseId = generateCaseId();
 
-      // Simulate a delay as if submitting to backend
-      await Future.delayed(const Duration(seconds: 1));
+      final newReport = {
+        "caseId": caseId,
+        "name": _nameCtrl.text,
+        "description": _descriptionCtrl.text,
+        "location": _locationCtrl.text,
+        "caseType": _selectedCaseType,
+        "status": "Pending",
+        "createdAt": DateTime.now().toUtc().toIso8601String(),
+      };
 
-      // Clear form and show success
+      // Push to AWS
+      final response = await Amplify.API
+          .mutate(
+            request: GraphQLRequest<String>(
+              document:
+                  '''mutation CreateUserCaseDetails(\$input: CreateUserCaseDetailsInput!) {
+      createUserCaseDetails(input: \$input) {
+        caseId
+      }
+    }''',
+              variables: {"input": newReport},
+            ),
+          )
+          .response;
+
+      debugPrint("GraphQL response: $response");
+
+      debugPrint("✅ Report stored in AWS DynamoDB table: Report-<ENV>-<HASH>");
+      debugPrint("Report caseId: $caseId");
+
       setState(() {
         _isSubmitting = false;
         _isSubmitted = true;
         _caseId = caseId;
-
         _nameCtrl.clear();
         _locationCtrl.clear();
         _descriptionCtrl.clear();
-        _selectedImage = null;
+        _selectedCaseType = null;
       });
-
-      
     } catch (e) {
       setState(() => _isSubmitting = false);
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Error submitting report: $e')));
-      debugPrint('Submit report error: $e');
+      ).showSnackBar(SnackBar(content: Text('Error: $e')));
     }
   }
 
@@ -188,7 +208,7 @@ class _ReportTabState extends State<ReportTab> {
                           "Short Description",
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            fontSize: 20,
+                            fontSize: 18,
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -210,12 +230,64 @@ class _ReportTabState extends State<ReportTab> {
                               : null,
                         ),
                         const SizedBox(height: 24),
+
+                        // Case Type
+                        const Text(
+                          "Type of Case",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        DropdownButtonFormField<String>(
+                          value: _selectedCaseType,
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: const Color(0xFFF8F6F8),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16),
+                              borderSide: BorderSide.none,
+                            ),
+                          ),
+                          items: const [
+                            DropdownMenuItem(
+                              value: "Food",
+                              child: Text("Food"),
+                            ),
+                            DropdownMenuItem(
+                              value: "Health",
+                              child: Text("Health"),
+                            ),
+                            DropdownMenuItem(
+                              value: "Education",
+                              child: Text("Education"),
+                            ),
+                            DropdownMenuItem(
+                              value: "Shelter",
+                              child: Text("Shelter"),
+                            ),
+                            DropdownMenuItem(
+                              value: "Financial",
+                              child: Text("Financial"),
+                            ),
+                          ],
+                          onChanged: (val) {
+                            setState(() {
+                              _selectedCaseType = val;
+                            });
+                          },
+                          validator: (val) =>
+                              val == null ? "Please select a case type" : null,
+                        ),
+                        const SizedBox(height: 24),
+
                         // Upload Image
                         const Text(
                           "Upload Image",
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            fontSize: 20,
+                            fontSize: 18,
                           ),
                         ),
                         const SizedBox(height: 4),

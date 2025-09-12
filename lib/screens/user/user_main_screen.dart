@@ -57,14 +57,15 @@ class _UserMainScreenState extends State<UserMainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    const Color selectedColor = Colors.red;
+    const Color selectedColor = Color(0xFFEC1337);
     const Color unselectedColor = Color.fromARGB(255, 128, 48, 48);
+    const backgroundPink = Color(0xFFFCF8F9);
 
     return Scaffold(
       body: _screens[_selectedIndex],
       bottomNavigationBar: NavigationBarTheme(
         data: NavigationBarThemeData(
-          backgroundColor: Colors.transparent,
+          backgroundColor: backgroundPink,
           surfaceTintColor: Colors.transparent,
           indicatorColor: Colors.transparent, // no background highlight
           labelTextStyle: MaterialStateProperty.resolveWith<TextStyle>((

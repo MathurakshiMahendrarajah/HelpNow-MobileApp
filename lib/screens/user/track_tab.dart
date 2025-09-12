@@ -1,4 +1,6 @@
+import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:flutter/material.dart';
+import 'dart:convert';
 
 class TrackTab extends StatefulWidget {
   final String? caseId;
@@ -43,24 +45,72 @@ class _TrackTabState extends State<TrackTab> {
       _caseData = null;
     });
 
-    await Future.delayed(const Duration(seconds: 1)); // simulate delay
+    try {
+      // GraphQL query to fetch the report by caseId
+      final response = await Amplify.API
+          .query(
+            request: GraphQLRequest<String>(
+              document: '''query GetUserCaseDetails(\$caseId: ID!) {
+          getUserCaseDetails(caseId: \$caseId) {
+            caseId
+            name
+            description
+            location
+            caseType
+            status
+            createdAt
+          }
+        }''',
+              variables: {"caseId": caseId},
+            ),
+          )
+          .response;
 
-    // Dummy UI-only data
-    final dummyData = {
-      'caseId': caseId,
-      'title': 'Street Light Not Working',
-      'note':
-          'The street light near the main road is not functioning properly.',
-      'location': 'Main Street, City Center',
-      'date': '2025-09-11',
-      'status': 'Pending',
-    };
+      debugPrint('GraphQL response: $response');
 
-    setState(() {
-      _caseData = dummyData;
-      _loading = false;
-      _errorMessage = null;
-    });
+      final data = response.data;
+      if (data == null) {
+        setState(() {
+          _errorMessage = 'No report found with this Case ID';
+          _loading = false;
+        });
+        return;
+      }
+
+      // Parse JSON response
+      final parsed = jsonDecode(data)['getUserCaseDetails'];
+      if (parsed == null) {
+        setState(() {
+          _errorMessage = 'No report found with this Case ID';
+          _loading = false;
+        });
+        return;
+      }
+
+      setState(() {
+        _caseData = {
+          'caseId': parsed['caseId'],
+          'title': parsed['caseType'] ?? 'Case Report',
+          'note': parsed['description'] ?? '',
+          'location': parsed['location'] ?? '',
+          'date': parsed['createdAt'] != null
+              ? DateTime.parse(
+                  parsed['createdAt'],
+                ).toLocal().toString().split(' ')[0]
+              : '',
+          'status': parsed['status'] ?? 'Pending',
+          'name': parsed['name'] ?? '',
+        };
+        _loading = false;
+        _errorMessage = null;
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Error fetching report: $e';
+        _loading = false;
+      });
+      debugPrint('Error fetching report: $e');
+    }
   }
 
   Widget _buildCaseCard(Map<String, dynamic> data) {
@@ -168,6 +218,7 @@ class _TrackTabState extends State<TrackTab> {
           'Track Case ID',
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
+        automaticallyImplyLeading: false,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
